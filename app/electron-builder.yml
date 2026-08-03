@@ -1,0 +1,40 @@
+appId: com.navik.app
+productName: Navik
+copyright: Copyright © Navik
+
+directories:
+  buildResources: build
+  output: dist
+
+files:
+  - out/**/*
+  - package.json
+
+win:
+  executableName: navik
+  icon: build/icon.ico
+  target:
+    - target: nsis
+    - target: portable
+
+nsis:
+  artifactName: ${productName}-Setup-${version}.${ext}
+  shortcutName: Navik
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+
+portable:
+  artifactName: ${productName}-${version}-portable.${ext}
+
+mac:
+  icon: build/icon.png
+  target:
+    - target: dmg
+  category: public.app-category.developer-tools
+
+linux:
+  icon: build/icon.png
+  target:
+    - target: AppImage
+  category: Development
+  executableName: navik
