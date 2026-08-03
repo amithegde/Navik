@@ -25,3 +25,25 @@
   height: 34px;
 }
 
+/* Toast — moved from bottom-center to top-right, clear of the title bar, so it doesn't sit over
+   the composer or transcript. */
+.toast {
+  top: 44px;
+  right: 20px;
+  bottom: auto;
+  left: auto;
+  transform: none;
+  animation: toast-in-top 180ms ease;
+}
+
+@keyframes toast-in-top {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
