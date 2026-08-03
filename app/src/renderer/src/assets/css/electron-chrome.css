@@ -1,0 +1,11 @@
+/* Frameless-window chrome: lets the OS drag/resize the window from the custom title bar since
+   there's no native caption (BrowserWindow created with frame: false). */
+
+.titlebar {
+  -webkit-app-region: drag;
+}
+
+.titlebar-tools,
+.titlebar-controls {
+  -webkit-app-region: no-drag;
+}

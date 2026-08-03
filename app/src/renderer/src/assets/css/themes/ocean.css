@@ -1,0 +1,30 @@
+:root[data-theme="ocean"] {
+    --bg-app: #07273b;
+    --bg-rail: #062132;
+    --bg-panel: #062132;
+    --bg-elevated: #09334e;
+    --bg-elevated-hover: #0c4463;
+    --bg-elevated-active: #0c3f5f;
+    --bg-input: #051b29;
+
+    --border-subtle: rgba(22, 121, 182, 0.16);
+    --border-default: rgba(22, 121, 182, 0.32);
+    --border-strong: rgba(22, 121, 182, 0.5);
+
+    --text-primary: #becfda;
+    --text-secondary: #9fb6c6;
+    --text-muted: #61a6d1;
+
+    --accent: #49ace9;
+    --accent-strong: #6fc3f5;
+    --accent-soft: rgba(73, 172, 233, 0.18);
+    --accent-soft-strong: rgba(73, 172, 233, 0.32);
+
+    --running: #49e9a6;
+    --running-soft: rgba(73, 233, 166, 0.18);
+    --danger: #e34e1c;
+    --warn: #e69533;
+
+    --shadow-lift: 0 8px 24px rgba(0, 0, 0, 0.4);
+    color-scheme: dark;
+}
