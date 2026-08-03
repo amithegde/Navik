@@ -1,7 +1,8 @@
 import { createEffect, createMemo, createSignal } from 'solid-js'
 import type { TranscriptEntry, ImageAttachment } from '@shared/transcript-types'
 import type { LiveConversationState } from '@shared/live-session-types'
-import { selectedSession } from './sessions-store'
+import { selectedSession, selectSession } from './sessions-store'
+import { showToast } from './toast-store'
 
 const externalPollIntervalMs = 4_000
 
@@ -160,6 +161,21 @@ export async function setCurrentModel(model: string): Promise<void> {
 export async function setCurrentPermissionMode(mode: string): Promise<void> {
   setPanePermissionMode(mode)
   if (isLive()) await window.navik.live.setPermissionMode(liveState()!.key, mode)
+}
+
+/** The one-click entry point for starting a session in the currently selected project — the
+ * titlebar/sidebar "New session" button and the Ctrl+N shortcut both funnel through here rather
+ * than through a dialog asking what they already know (the project). */
+export function startNewSessionInCurrentProject(): void {
+  const session = selectedSession()
+  if (!session) {
+    showToast('Select a project first, or right-click one for a new session.', true)
+    return
+  }
+  void window.navik.live.startNew(session.projectPath).then((result) => {
+    if (result.success && result.placeholderId) selectSession(result.placeholderId)
+    showToast(result.success ? `Starting a new session in ${session.projectPath}…` : result.error ?? 'Failed to launch.', !result.success)
+  })
 }
 
 export { liveState, historicalEntries, isLoadingTranscript, resumingSessionId }

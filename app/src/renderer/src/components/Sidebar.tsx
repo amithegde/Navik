@@ -4,6 +4,7 @@ import {
   filteredSessions,
   isLoading,
   projects,
+  refreshSessions,
   searchText,
   selectedProjectFilter,
   selectedSessionId,
@@ -11,6 +12,7 @@ import {
   setProjectFilter,
   setSearchText
 } from '../state/sessions-store'
+import { startNewSessionInCurrentProject } from '../state/live-conversation-store'
 import { formatRelativeTime } from '../lib/relative-time'
 import { ordinalIgnoreCaseCompare } from '@shared/text'
 
@@ -83,6 +85,41 @@ export default function Sidebar() {
 
   return (
     <aside class="sidebar">
+      <div class="sidebar-toolbar">
+        <button
+          class="icon-btn icon-btn-lg"
+          classList={{ active: selectedSessionId() === null }}
+          title="Home"
+          onClick={() => selectSession(null)}
+        >
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+            <path
+              d="M2 7.5L8 2.5l6 5M3.5 6.5V13a.5.5 0 0 0 .5.5h3v-4h2v4h3a.5.5 0 0 0 .5-.5V6.5"
+              stroke="currentColor"
+              stroke-width="1.4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+        <button class="icon-btn icon-btn-lg" classList={{ spinning: isLoading() }} title="Refresh" onClick={() => void refreshSessions()}>
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+            <path
+              d="M13.5 8a5.5 5.5 0 1 1-1.65-3.93M13.5 2v3.5H10"
+              stroke="currentColor"
+              stroke-width="1.4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+        <button class="icon-btn icon-btn-lg" title="New session (Ctrl+N)" onClick={startNewSessionInCurrentProject}>
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+            <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
+
       <div class="search-wrap">
         <div class="search-box">
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none">

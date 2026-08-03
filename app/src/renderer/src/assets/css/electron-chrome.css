@@ -9,3 +9,19 @@
 .titlebar-controls {
   -webkit-app-region: no-drag;
 }
+
+/* Sidebar toolbar (Home/Refresh/New-session) — moved here from the title bar and enlarged so
+   they're easier to find and click. */
+.sidebar-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 14px 4px;
+  flex-shrink: 0;
+}
+
+.icon-btn-lg {
+  width: 34px;
+  height: 34px;
+}
+
