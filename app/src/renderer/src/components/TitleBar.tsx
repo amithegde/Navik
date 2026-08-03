@@ -1,5 +1,6 @@
 import { onCleanup, onMount } from 'solid-js'
 import ThemePicker from './ThemePicker'
+import { isLoading, refreshSessions, selectedSessionId, selectSession } from '../state/sessions-store'
 
 export default function TitleBar() {
   onMount(() => {
@@ -19,6 +20,38 @@ export default function TitleBar() {
       </div>
 
       <div class="titlebar-tools" onDblClick={(e) => e.stopPropagation()}>
+        <button
+          class="icon-btn"
+          classList={{ active: selectedSessionId() === null }}
+          title="Home"
+          onClick={() => selectSession(null)}
+        >
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+            <path
+              d="M2 7.5L8 2.5l6 5M3.5 6.5V13a.5.5 0 0 0 .5.5h3v-4h2v4h3a.5.5 0 0 0 .5-.5V6.5"
+              stroke="currentColor"
+              stroke-width="1.4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+        <button
+          class="icon-btn"
+          classList={{ spinning: isLoading() }}
+          title="Refresh"
+          onClick={() => void refreshSessions()}
+        >
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+            <path
+              d="M13.5 8a5.5 5.5 0 1 1-1.65-3.93M13.5 2v3.5H10"
+              stroke="currentColor"
+              stroke-width="1.4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
         <ThemePicker />
       </div>
 

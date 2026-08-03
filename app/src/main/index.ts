@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import { createMainWindow } from './main-window'
 import { IpcChannels } from '../shared/ipc-channels'
+import { sessionsState } from './sessions-state'
 
 function registerWindowControlIpc(): void {
   ipcMain.on(IpcChannels.windowMinimize, (event) => {
@@ -19,8 +20,23 @@ function registerWindowControlIpc(): void {
   })
 }
 
+function registerSessionsIpc(): void {
+  ipcMain.handle(IpcChannels.sessionsRefresh, () => sessionsState.refresh())
+  ipcMain.handle(IpcChannels.sessionsTogglePinned, (_event, sessionId: string) =>
+    sessionsState.togglePinned(sessionId)
+  )
+
+  sessionsState.on('changed', (snapshot) => {
+    for (const win of BrowserWindow.getAllWindows()) {
+      win.webContents.send(IpcChannels.sessionsChanged, snapshot)
+    }
+  })
+}
+
 app.whenReady().then(async () => {
   registerWindowControlIpc()
+  registerSessionsIpc()
+  await sessionsState.init()
   await createMainWindow()
 
   app.on('activate', () => {
@@ -31,3 +47,5 @@ app.whenReady().then(async () => {
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()
 })
+
+app.on('before-quit', () => sessionsState.dispose())

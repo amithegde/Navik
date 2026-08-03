@@ -1,5 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { IpcChannels } from '../shared/ipc-channels'
+import type { SessionsSnapshot } from '../shared/session-types'
 
 const windowControls = {
   minimize: (): void => ipcRenderer.send(IpcChannels.windowMinimize),
@@ -12,8 +13,20 @@ const windowControls = {
   }
 }
 
+const sessions = {
+  refresh: (): Promise<SessionsSnapshot> => ipcRenderer.invoke(IpcChannels.sessionsRefresh),
+  togglePinned: (sessionId: string): Promise<string[]> =>
+    ipcRenderer.invoke(IpcChannels.sessionsTogglePinned, sessionId),
+  onChanged: (callback: (snapshot: SessionsSnapshot) => void): (() => void) => {
+    const listener = (_event: Electron.IpcRendererEvent, snapshot: SessionsSnapshot): void => callback(snapshot)
+    ipcRenderer.on(IpcChannels.sessionsChanged, listener)
+    return () => ipcRenderer.removeListener(IpcChannels.sessionsChanged, listener)
+  }
+}
+
 const navikApi = {
-  windowControls
+  windowControls,
+  sessions
 }
 
 contextBridge.exposeInMainWorld('navik', navikApi)
