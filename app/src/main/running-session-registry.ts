@@ -5,7 +5,7 @@ import type { RunningProcessInfo } from '../shared/session-types'
 
 // process.kill with signal 0 sends no actual signal; it just probes whether the pid exists
 // (ESRCH if not) — works cross-platform, including Windows, without listing every process.
-function isProcessAlive(pid: number): boolean {
+export function isProcessAlive(pid: number): boolean {
   try {
     process.kill(pid, 0)
     return true
