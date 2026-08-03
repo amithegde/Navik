@@ -2,7 +2,7 @@ import { onCleanup, onMount } from 'solid-js'
 import ThemePicker from './ThemePicker'
 import { isLoading, refreshSessions, selectedSessionId, selectSession } from '../state/sessions-store'
 
-export default function TitleBar() {
+export default function TitleBar(props: { onStartNewSession: () => void; onOpenShortcuts: () => void }) {
   onMount(() => {
     const unsubscribe = window.navik.windowControls.onMaximizedChange((value) => {
       document.body.classList.toggle('window-maximized', value)
@@ -52,7 +52,23 @@ export default function TitleBar() {
             />
           </svg>
         </button>
+        <button class="icon-btn" title="New session (Ctrl+N)" onClick={props.onStartNewSession}>
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+            <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+          </svg>
+        </button>
         <ThemePicker />
+        <button class="icon-btn" title="Keyboard shortcuts" onClick={props.onOpenShortcuts}>
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+            <rect x="1.5" y="4" width="13" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3" />
+            <path
+              d="M4 7h.01M6.5 7h.01M9 7h.01M11.5 7h.01M4 9.5h6.5"
+              stroke="currentColor"
+              stroke-width="1.3"
+              stroke-linecap="round"
+            />
+          </svg>
+        </button>
       </div>
 
       <div class="titlebar-controls" onDblClick={(e) => e.stopPropagation()}>

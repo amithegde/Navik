@@ -10,6 +10,7 @@ export const IpcChannels = {
   sessionsReadTranscript: 'sessions:read-transcript',
   sessionsOpenInTerminal: 'sessions:open-in-terminal',
   sessionsStop: 'sessions:stop',
+  sessionsPickFile: 'sessions:pick-file',
 
   liveStartNew: 'live:start-new',
   liveResume: 'live:resume',
@@ -18,6 +19,7 @@ export const IpcChannels = {
   liveSetPermissionMode: 'live:set-permission-mode',
   liveGetState: 'live:get-state',
   liveConversationChanged: 'live:conversation-changed',
+  liveRowSwapped: 'live:row-swapped',
 
   catalogGetModels: 'catalog:get-models',
   catalogGetCommands: 'catalog:get-commands'

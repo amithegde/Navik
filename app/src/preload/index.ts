@@ -24,6 +24,7 @@ const sessions = {
     ipcRenderer.invoke(IpcChannels.sessionsReadTranscript, transcriptPath),
   openInTerminal: (sessionId: string, projectPath: string): Promise<{ success: boolean; error?: string }> =>
     ipcRenderer.invoke(IpcChannels.sessionsOpenInTerminal, { sessionId, projectPath }),
+  pickFile: (projectPath: string): Promise<string | null> => ipcRenderer.invoke(IpcChannels.sessionsPickFile, projectPath),
   onChanged: (callback: (snapshot: SessionsSnapshot) => void): (() => void) => {
     const listener = (_event: Electron.IpcRendererEvent, snapshot: SessionsSnapshot): void => callback(snapshot)
     ipcRenderer.on(IpcChannels.sessionsChanged, listener)
@@ -52,6 +53,11 @@ const live = {
     const listener = (_event: Electron.IpcRendererEvent, state: LiveConversationState): void => callback(state)
     ipcRenderer.on(IpcChannels.liveConversationChanged, listener)
     return () => ipcRenderer.removeListener(IpcChannels.liveConversationChanged, listener)
+  },
+  onRowSwapped: (callback: (swap: { previousKey: string; key: string }) => void): (() => void) => {
+    const listener = (_event: Electron.IpcRendererEvent, swap: { previousKey: string; key: string }): void => callback(swap)
+    ipcRenderer.on(IpcChannels.liveRowSwapped, listener)
+    return () => ipcRenderer.removeListener(IpcChannels.liveRowSwapped, listener)
   }
 }
 

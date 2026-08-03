@@ -15,9 +15,18 @@ function applySnapshot(snapshot: SessionsSnapshot): void {
   setPinnedIds(new Set(snapshot.pinnedSessionIds))
 }
 
-/** Subscribes to main-process push updates (background poll, pin changes). Returns an unsubscribe. */
+/** Subscribes to main-process push updates (background poll, pin changes, and a live session's
+ * placeholder-id-to-real-id swap, which keeps the detail pane pointed at the same conversation
+ * across the swap). Returns an unsubscribe. */
 export function initSessionsStore(): () => void {
-  return window.navik.sessions.onChanged(applySnapshot)
+  const unsubscribeChanged = window.navik.sessions.onChanged(applySnapshot)
+  const unsubscribeSwapped = window.navik.live.onRowSwapped(({ previousKey, key }) => {
+    if (selectedSessionId()?.toLowerCase() === previousKey.toLowerCase()) setSelectedSessionId(key)
+  })
+  return () => {
+    unsubscribeChanged()
+    unsubscribeSwapped()
+  }
 }
 
 export async function refreshSessions(): Promise<void> {
