@@ -10,6 +10,12 @@ files:
   - out/**/*
   - package.json
 
+# The UI is English-only; shipping just en-US drops ~46 MB of Chromium locale files
+# from the unpacked app.
+electronLanguages:
+  - en-US
+compression: maximum
+
 win:
   executableName: navik
   icon: build/icon.ico
