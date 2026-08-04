@@ -225,6 +225,16 @@ export default function DetailPane() {
                     />
                   </svg>
                 </button>
+                <button class="transcript-tool-btn" data-scroll-transcript="prev-user" title="Scroll to the previous message you sent">
+                  <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+                    <path d="M8 13V4M8 4L4 8M8 4l4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </button>
+                <button class="transcript-tool-btn" data-scroll-transcript="next-user" title="Scroll to the next message you sent">
+                  <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+                    <path d="M8 3v9M8 12l-4-4M8 12l4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </button>
                 <button class="transcript-tool-btn" data-scroll-transcript="bottom" title="Scroll to the latest output">
                   <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
                     <path

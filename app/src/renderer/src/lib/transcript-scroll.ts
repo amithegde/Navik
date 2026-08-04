@@ -6,6 +6,12 @@
 const pinThresholdPx = 64
 const smoothSettleMs = 700
 const intentWindowMs = 400
+// Landing on a step target parks scrollTop `stepScrollPaddingPx` above its true offset (for
+// breathing room), so the epsilon used to tell "still on this turn" from "moved past it" must
+// exceed the padding — otherwise scrollToNextUserMessage sees the turn you just landed on as
+// satisfying "top > scrollTop + epsilon" and re-targets itself forever.
+const stepScrollPaddingPx = 12
+const stepEpsilonPx = stepScrollPaddingPx + 4
 
 function distanceFromBottom(el: HTMLElement): number {
   return el.scrollHeight - el.clientHeight - el.scrollTop
@@ -107,6 +113,57 @@ export class TranscriptScrollController {
     this.smoothScrollTo(this.el.scrollHeight)
   }
 
+  /** Step to the nearest user turn above the current scroll position; repeated clicks walk
+   * further back. No-ops (re-lands on the same turn) once there's nothing earlier. */
+  scrollToPreviousUserMessage(): void {
+    const el = this.el
+    if (!el) return
+    const turns = this.userTurnElements()
+    if (turns.length === 0) return
+    let target = turns[0]
+    for (let i = turns.length - 1; i >= 0; i--) {
+      if (this.topOf(turns[i]) < el.scrollTop - stepEpsilonPx) {
+        target = turns[i]
+        break
+      }
+    }
+    this.follow = false
+    this.intentUntil = 0
+    this.smoothScrollTo(this.topOf(target) - stepScrollPaddingPx)
+  }
+
+  /** Step to the nearest user turn below the current scroll position; repeated clicks walk
+   * forward. No-ops (re-lands on the same turn) once there's nothing later. */
+  scrollToNextUserMessage(): void {
+    const el = this.el
+    if (!el) return
+    const turns = this.userTurnElements()
+    if (turns.length === 0) return
+    let target = turns[turns.length - 1]
+    for (let i = 0; i < turns.length; i++) {
+      if (this.topOf(turns[i]) > el.scrollTop + stepEpsilonPx) {
+        target = turns[i]
+        break
+      }
+    }
+    this.follow = false
+    this.intentUntil = 0
+    this.smoothScrollTo(this.topOf(target) - stepScrollPaddingPx)
+  }
+
+  private userTurnElements(): HTMLElement[] {
+    if (!this.el) return []
+    return Array.from(this.el.querySelectorAll<HTMLElement>('.transcript-turn.user'))
+  }
+
+  /** Position of `child`'s top edge relative to `el`'s scrollable content, regardless of
+   * whichever ancestor happens to be `child`'s CSS offsetParent. */
+  private topOf(child: HTMLElement): number {
+    const el = this.el
+    if (!el) return 0
+    return child.getBoundingClientRect().top - el.getBoundingClientRect().top + el.scrollTop
+  }
+
   private userIsScrolling(): boolean {
     return this.dragging || performance.now() <= this.intentUntil
   }
@@ -146,9 +203,20 @@ export function installTranscriptToolbarScrollButtons(controller: TranscriptScro
   const onClick = (e: MouseEvent): void => {
     const target = (e.target as Element | null)?.closest('[data-scroll-transcript]')
     if (!target) return
-    const toBottom = target.getAttribute('data-scroll-transcript') === 'bottom'
-    if (toBottom) controller.scrollToBottom()
-    else controller.scrollToTop()
+    switch (target.getAttribute('data-scroll-transcript')) {
+      case 'bottom':
+        controller.scrollToBottom()
+        break
+      case 'top':
+        controller.scrollToTop()
+        break
+      case 'prev-user':
+        controller.scrollToPreviousUserMessage()
+        break
+      case 'next-user':
+        controller.scrollToNextUserMessage()
+        break
+    }
   }
 
   document.addEventListener('click', onClick)
