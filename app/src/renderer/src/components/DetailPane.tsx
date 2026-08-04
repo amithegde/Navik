@@ -37,6 +37,7 @@ export default function DetailPane() {
   const [fullTextView, setFullTextView] = createSignal<TextViewerRequest | null>(null)
   let scrollRef: HTMLDivElement | undefined
   let boundScrollEl: HTMLDivElement | undefined
+  let boundSessionId: string | undefined
   const scrollController = new TranscriptScrollController()
 
   onMount(() => {
@@ -48,15 +49,23 @@ export default function DetailPane() {
   // destroyed/recreated when leaving/re-entering the Show's truthy branch, i.e. via Home) — so
   // only (re)bind the controller's listeners when the element itself actually changed; every
   // other session switch just resets follow-mode without churning through unbind+rebind.
+  //
+  // `selectedSession()` is a memo over `sessions()`, which gets a freshly IPC-cloned array (new
+  // object references throughout, even for untouched sessions) on every background poll tick —
+  // so this effect reruns far more often than the selection actually changes. Gate the
+  // session-switch reset on the sessionId itself, not on the effect merely rerunning, or reading
+  // a still-selected session while some unrelated session's status changes in the background
+  // snaps the scroll position back to the bottom out from under the user.
   createEffect(() => {
     const id = selectedSession()?.sessionId
     if (scrollRef && boundScrollEl !== scrollRef) {
       scrollController.bind(scrollRef)
       boundScrollEl = scrollRef
-    } else {
+      boundSessionId = id
+    } else if (id !== boundSessionId) {
       scrollController.notifySessionChanged()
+      boundSessionId = id
     }
-    void id
   })
 
   createEffect(() => {
