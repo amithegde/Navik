@@ -1,5 +1,6 @@
 import { onCleanup, onMount } from 'solid-js'
 import ThemePicker from './ThemePicker'
+import appIcon from '../assets/images/app-icon.png'
 
 export default function TitleBar(props: { onOpenShortcuts: () => void }) {
   onMount(() => {
@@ -14,7 +15,7 @@ export default function TitleBar(props: { onOpenShortcuts: () => void }) {
   return (
     <div class="titlebar" onDblClick={onDragDoubleClick}>
       <div class="titlebar-brand">
-        <span class="brand-mark">N</span>
+        <img class="brand-mark" src={appIcon} alt="" />
         <span>Navik</span>
       </div>
 
