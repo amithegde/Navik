@@ -1,3 +1,4 @@
+import './bootstrap-threadpool'
 import { app, BrowserWindow, dialog, ipcMain } from 'electron'
 import path from 'node:path'
 import { createMainWindow } from './main-window'

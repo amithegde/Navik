@@ -11,16 +11,31 @@ import { ordinalIgnoreCaseCompare } from '../shared/text'
 // reading a fixed prefix keeps discovery fast even for multi-MB transcripts.
 const metadataScanLineLimit = 80
 
+// How many transcript files to scan at once. Bounded (rather than Promise.all over everything)
+// so a project with thousands of sessions doesn't open thousands of file handles at once; matched
+// to the raised UV_THREADPOOL_SIZE in bootstrap-threadpool.ts so this actually achieves real
+// concurrency in libuv rather than queuing behind the default pool of 4.
+const scanConcurrency = 32
+
 interface SessionMetadata {
   title: string | null
   cwd: string | null
   gitBranch: string | null
 }
 
-export async function discoverSessions(home: ClaudeHome): Promise<ClaudeSession[]> {
-  const sessions: ClaudeSession[] = []
+interface CachedMetadata extends SessionMetadata {
+  mtimeMs: number
+  size: number
+}
 
-  if (!(await pathExists(home.projectsDir))) return sessions
+// Keyed by absolute transcript path, kept for the life of the process. discoverSessions() re-scans
+// every project dir on every refresh() (poll fallback, manual refresh, initial load); without this,
+// each of those re-reads every transcript's first 80 lines from scratch even when nothing changed.
+// A transcript file is append-only once a session ends, so mtime+size is a reliable unchanged check.
+const metadataCache = new Map<string, CachedMetadata>()
+
+export async function discoverSessions(home: ClaudeHome): Promise<ClaudeSession[]> {
+  if (!(await pathExists(home.projectsDir))) return []
 
   const [sessionToProject, running] = await Promise.all([
     buildSessionToProjectMap(home),
@@ -29,36 +44,38 @@ export async function discoverSessions(home: ClaudeHome): Promise<ClaudeSession[
 
   const projectDirs = await fs.readdir(home.projectsDir, { withFileTypes: true })
 
-  for (const dirent of projectDirs) {
-    if (!dirent.isDirectory()) continue
+  const fileEntries = (
+    await Promise.all(
+      projectDirs
+        .filter((dirent) => dirent.isDirectory())
+        .map(async (dirent) => {
+          const projectDir = path.join(home.projectsDir, dirent.name)
+          const files = await fs.readdir(projectDir, { withFileTypes: true })
+          return files
+            .filter((file) => file.isFile() && file.name.endsWith('.jsonl'))
+            .map((file) => ({ projectDirName: dirent.name, jsonlFile: path.join(projectDir, file.name) }))
+        })
+    )
+  ).flat()
 
-    const projectDir = path.join(home.projectsDir, dirent.name)
-    const files = await fs.readdir(projectDir, { withFileTypes: true })
+  const sessions = await mapWithConcurrency(fileEntries, scanConcurrency, async ({ projectDirName, jsonlFile }) => {
+    const sessionId = path.basename(jsonlFile, '.jsonl')
+    const meta = await scanMetadataCached(jsonlFile)
 
-    for (const file of files) {
-      if (!file.isFile() || !file.name.endsWith('.jsonl')) continue
+    const projectPath =
+      sessionToProject.get(sessionId.toLowerCase()) ?? meta.cwd ?? decodeProjectFolderName(projectDirName)
 
-      const jsonlFile = path.join(projectDir, file.name)
-      const sessionId = path.basename(file.name, '.jsonl')
-      const meta = await scanMetadata(jsonlFile)
-
-      const projectPath =
-        sessionToProject.get(sessionId.toLowerCase()) ?? meta.cwd ?? decodeProjectFolderName(dirent.name)
-
-      const stat = await fs.stat(jsonlFile)
-
-      sessions.push({
-        sessionId,
-        projectPath,
-        projectDisplayName: getDisplayName(projectPath),
-        title: meta.title ?? sessionId,
-        transcriptPath: jsonlFile,
-        lastActivityUtc: stat.mtime.toISOString(),
-        gitBranch: meta.gitBranch ?? undefined,
-        running: running.get(sessionId.toLowerCase())
-      })
+    return {
+      sessionId,
+      projectPath,
+      projectDisplayName: getDisplayName(projectPath),
+      title: meta.title ?? sessionId,
+      transcriptPath: jsonlFile,
+      lastActivityUtc: new Date(meta.mtimeMs).toISOString(),
+      gitBranch: meta.gitBranch ?? undefined,
+      running: running.get(sessionId.toLowerCase())
     }
-  }
+  })
 
   sessions.sort((a, b) => {
     const aRunning = a.running ? 1 : 0
@@ -106,6 +123,33 @@ export function groupByProject(sessions: ClaudeSession[]): ClaudeProject[] {
   })
 
   return projects
+}
+
+/** Runs `fn` over `items` with at most `limit` in flight at once, preserving result order. */
+async function mapWithConcurrency<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
+  const results: R[] = new Array(items.length)
+  let nextIndex = 0
+
+  async function worker(): Promise<void> {
+    while (nextIndex < items.length) {
+      const current = nextIndex++
+      results[current] = await fn(items[current])
+    }
+  }
+
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker))
+  return results
+}
+
+async function scanMetadataCached(jsonlFile: string): Promise<CachedMetadata> {
+  const stat = await fs.stat(jsonlFile)
+  const cached = metadataCache.get(jsonlFile)
+  if (cached && cached.mtimeMs === stat.mtimeMs && cached.size === stat.size) return cached
+
+  const meta = await scanMetadata(jsonlFile)
+  const entry: CachedMetadata = { ...meta, mtimeMs: stat.mtimeMs, size: stat.size }
+  metadataCache.set(jsonlFile, entry)
+  return entry
 }
 
 async function scanMetadata(jsonlFile: string): Promise<SessionMetadata> {
