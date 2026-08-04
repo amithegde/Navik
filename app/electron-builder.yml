@@ -18,13 +18,13 @@ win:
     - target: portable
 
 nsis:
-  artifactName: ${productName}-Setup-${version}.${ext}
+  artifactName: Setup.${ext}
   shortcutName: Navik
   createDesktopShortcut: true
   createStartMenuShortcut: true
 
 portable:
-  artifactName: ${productName}-${version}-portable.${ext}
+  artifactName: ${productName}.${ext}
 
 mac:
   icon: build/icon.png
