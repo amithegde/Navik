@@ -15,7 +15,8 @@ const groups: ShortcutGroup[] = [
     title: 'General',
     rows: [
       { keys: ['Ctrl', 'N'], desc: 'Start a new session in the current project' },
-      { keys: ['Ctrl', 'K'], desc: 'Focus the session search box' }
+      { keys: ['Ctrl', 'K'], desc: 'Focus the session search box' },
+      { keys: ['Esc'], desc: 'Exit zen mode' }
     ]
   },
   {

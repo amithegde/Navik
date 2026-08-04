@@ -11,6 +11,7 @@ import ImageViewerModal from './ImageViewerModal'
 import HomeView from './HomeView'
 import EditorButton from './EditorButton'
 import { imagePreview, setImagePreview } from '../state/composer-store'
+import { isZenMode, toggleZenMode } from '../state/layout-store'
 
 function formatLongDate(iso: string): string {
   return new Date(iso).toLocaleString(undefined, { dateStyle: 'full', timeStyle: 'short' })
@@ -234,6 +235,38 @@ export default function DetailPane() {
                       stroke-linejoin="round"
                     />
                   </svg>
+                </button>
+                <button
+                  type="button"
+                  class="transcript-tool-btn zen-toggle-btn"
+                  classList={{ active: isZenMode() }}
+                  title={isZenMode() ? 'Reset — exit zen mode' : 'Maximize — enter zen mode and hide the sidebar'}
+                  onClick={toggleZenMode}
+                >
+                  <Show
+                    when={!isZenMode()}
+                    fallback={
+                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                        <path
+                          d="M6 2.5V6H2.5M10 6h3.5V2.5M13.5 10H10v3.5M2.5 10v3.5H6"
+                          stroke="currentColor"
+                          stroke-width="1.3"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    }
+                  >
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                      <path
+                        d="M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10"
+                        stroke="currentColor"
+                        stroke-width="1.3"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </Show>
                 </button>
               </div>
 

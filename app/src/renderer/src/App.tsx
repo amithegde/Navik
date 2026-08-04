@@ -8,11 +8,13 @@ import { initLiveConversationStore, startNewSessionInCurrentProject } from './st
 import { initComposerStore } from './state/composer-store'
 import { initCatalogStore } from './state/catalog-store'
 import { initEditorStore } from './state/editor-store'
+import { isZenMode } from './state/layout-store'
 import { toastIsError, toastMessage } from './state/toast-store'
 import { installSearchShortcut } from './lib/search-shortcut'
 import { installNewSessionShortcut } from './lib/new-session-shortcut'
 import { installScrollbarHover } from './lib/scrollbar-hover'
 import { installPaneResizer } from './lib/pane-resizer'
+import { installZenModeEscapeHatch } from './lib/zen-mode-shortcut'
 
 export default function App() {
   const [shortcutsOpen, setShortcutsOpen] = createSignal(false)
@@ -30,6 +32,7 @@ export default function App() {
     const uninstallNewSessionShortcut = installNewSessionShortcut(startNewSessionInCurrentProject)
     const uninstallScrollbarHover = installScrollbarHover()
     const uninstallPaneResizer = resizerRef ? installPaneResizer(resizerRef) : undefined
+    const uninstallZenModeEscapeHatch = installZenModeEscapeHatch()
 
     onCleanup(() => {
       unsubscribeSessions()
@@ -38,13 +41,14 @@ export default function App() {
       uninstallNewSessionShortcut()
       uninstallScrollbarHover()
       uninstallPaneResizer?.()
+      uninstallZenModeEscapeHatch()
     })
   })
 
   return (
     <div class="app-window">
       <TitleBar onOpenShortcuts={() => setShortcutsOpen(true)} />
-      <div class="app-shell">
+      <div class="app-shell" classList={{ 'zen-mode': isZenMode() }}>
         <Sidebar />
         <div class="pane-resizer" title="Drag to resize" ref={resizerRef}>
           <span class="resizer-grip">

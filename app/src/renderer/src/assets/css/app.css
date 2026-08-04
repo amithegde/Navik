@@ -145,6 +145,14 @@ body.window-maximized .titlebar-btn .icon-restore { display: block; }
     background: var(--bg-app);
 }
 
+.app-shell.zen-mode {
+    grid-template-columns: 1fr;
+}
+.app-shell.zen-mode .sidebar,
+.app-shell.zen-mode .pane-resizer {
+    display: none;
+}
+
 /* ---- Pane resizer (drag to resize sidebar, VSCode-style sash) ---- */
 
 .pane-resizer {
@@ -564,6 +572,7 @@ body.resizing-panes * { cursor: col-resize !important; }
 .transcript-tool-btn:hover { background: var(--bg-elevated-hover); color: var(--text-primary); }
 .transcript-tool-btn.danger { color: var(--danger); }
 .transcript-tool-btn.danger:hover { background: var(--danger); color: white; }
+.transcript-tool-btn.zen-toggle-btn.active { background: var(--accent-soft); color: var(--accent-strong); }
 .transcript-tool-btn.pin-btn.active { color: var(--warn); }
 /* Dim — rather than hide — the button for the edge you're already at, so the toolbar's
    layout stays put while scrolling. */
