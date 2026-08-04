@@ -236,6 +236,14 @@ export default function Composer() {
     resizeNow()
   })
 
+  // Composer stays mounted across session switches (DetailPane's <Show> only remounts it when
+  // coming back from Home), so a session start/open needs its own effect to (re)focus the
+  // textbox — onMount alone only covers the very first session shown.
+  createEffect(() => {
+    selectedSession()?.sessionId
+    textareaRef?.focus()
+  })
+
   const placeholder = (): string => (isResuming() ? 'Starting…' : isBusy() ? 'Queue another message…' : 'Message Claude…')
   const sendDisabled = (): boolean => isResuming() || (!draftText().trim() && pendingImages().length === 0)
 
