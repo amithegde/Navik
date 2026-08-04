@@ -20,6 +20,8 @@ Built with Electron, TypeScript, and SolidJS. Targets Windows, macOS, and Linux 
 platform this has actually been built and run on so far; macOS/Linux packaging is configured but not
 yet verified on those platforms.
 
+![Navik screenshot](assets/screenshots/app-screenshot.png)
+
 ## Layout
 
 ```
