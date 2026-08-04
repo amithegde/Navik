@@ -35,6 +35,8 @@ app/
 
 ## Building and running
 
+Windows:
+
 ```
 .\build.ps1               # or build.cmd — npm install + typecheck + build
 .\build.ps1 -Clean        # wipe node_modules/out first
@@ -43,16 +45,37 @@ app/
 .\run.ps1 -NoBuild         # relaunch the last .\build.ps1 output without rebuilding
 ```
 
+macOS/Linux:
+
+```
+./build.sh                 # npm install + typecheck + build
+./build.sh --clean         # wipe node_modules/out first
+
+./run.sh                   # dev mode with hot reload
+./run.sh --no-build        # relaunch the last ./build.sh output without rebuilding
+```
+
 Requires Node.js and a `claude` executable discoverable on `PATH` (or under `~/.local/bin`);
 override the resolved path with the `CLAUDE_NAVIK_CLI_PATH` environment variable. Points at
 `~/.claude` by default; override with `CLAUDE_CONFIG_DIR`.
 
 ## Packaging
 
+Windows:
+
 ```
 .\publish.ps1                # or publish.cmd — builds navik.exe: NSIS installer + portable exe -> app/dist
 .\publish.ps1 -Platform mac   # unverified
 .\publish.ps1 -Platform linux # unverified
+```
+
+macOS/Linux:
+
+```
+./publish.sh                 # packages for the current OS (dmg on macOS, AppImage on Linux) -> app/dist
+./publish.sh mac
+./publish.sh linux
+./publish.sh win              # unverified — cross-building for Windows from mac/linux
 ```
 
 ## Tests

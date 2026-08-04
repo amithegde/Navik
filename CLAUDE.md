@@ -5,11 +5,17 @@ Guidance for Claude Code when working in this repo.
 ## Commands
 
 ```
-.\build.ps1                          # npm install + typecheck + build — build.cmd on cmd.exe
+.\build.ps1                          # Windows: npm install + typecheck + build — build.cmd on cmd.exe
 .\build.ps1 -Clean                   # wipe node_modules/out first
-.\run.ps1                            # dev mode with hot reload — run.cmd on cmd.exe
+.\run.ps1                            # Windows: dev mode with hot reload — run.cmd on cmd.exe
 .\run.ps1 -NoBuild                   # relaunch the last build without rebuilding
-.\publish.ps1                        # package navik.exe (NSIS installer + portable) — publish.cmd on cmd.exe
+.\publish.ps1                        # Windows: package navik.exe (NSIS installer + portable) — publish.cmd on cmd.exe
+
+./build.sh                           # macOS/Linux equivalents of the above
+./build.sh --clean
+./run.sh
+./run.sh --no-build
+./publish.sh                         # packages for the current OS; ./publish.sh mac|linux|win to pick one
 
 cd app
 npm run typecheck
@@ -18,8 +24,10 @@ npm run dev
 npm run dist:win
 ```
 
-`app/` is an Electron + TypeScript + SolidJS app. Built and run on Windows; macOS/Linux packaging
-(`npm run dist:mac` / `dist:linux`) is configured but unverified on those platforms.
+`app/` is an Electron + TypeScript + SolidJS app. Built and run on Windows; the `.sh` scripts and
+`npm run dist:mac` / `dist:linux` exist and the underlying platform-branches in `main/` (CLI
+locate/launch, process-tree kill, config-dir resolution) are all implemented, but packaging itself
+is unverified on macOS/Linux — nobody has actually run it there yet.
 
 Env vars: `CLAUDE_CONFIG_DIR` (override `~/.claude`), `CLAUDE_NAVIK_CLI_PATH` (override the
 resolved `claude` executable).
