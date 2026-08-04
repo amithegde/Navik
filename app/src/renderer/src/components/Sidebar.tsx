@@ -191,7 +191,7 @@ export default function Sidebar() {
                     <span class="live-pulse" />
                   </Show>
                   <span>{group.label}</span>
-                  <span class="group-label-spacer" />
+                  <span class="group-rule" />
                   <span class="group-count">{group.items.length}</span>
                 </button>
                 <Show when={!collapsed()}>

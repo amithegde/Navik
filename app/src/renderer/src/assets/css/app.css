@@ -197,14 +197,7 @@ body.resizing-panes * { cursor: col-resize !important; }
 .brand-mark {
     width: 20px;
     height: 20px;
-    border-radius: 6px;
-    background: linear-gradient(135deg, #242942, #0e101a);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #f5ede0;
-    font-size: 11px;
-    font-weight: 800;
+    object-fit: contain;
     flex-shrink: 0;
 }
 
@@ -328,18 +321,28 @@ body.resizing-panes * { cursor: col-resize !important; }
     align-items: center;
     gap: 8px;
     width: 100%;
-    padding: 14px 8px 6px;
+    margin-top: 14px;
+    padding: 7px 8px;
     font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.06em;
+    font-weight: 700;
+    letter-spacing: 0.07em;
     text-transform: uppercase;
-    color: var(--text-muted);
+    color: var(--text-secondary);
     background: transparent;
     border: none;
+    border-radius: var(--radius-md);
     text-align: left;
     cursor: pointer;
+    transition: background 120ms ease, color 120ms ease;
 }
-.session-group-label:hover { color: var(--text-secondary); }
+.session-group-label:first-child { margin-top: 2px; }
+.session-group-label:hover { background: var(--bg-elevated-hover); color: var(--text-primary); }
+.session-group-label .group-rule {
+    flex: 1;
+    height: 1px;
+    margin-left: 4px;
+    background: var(--border-default);
+}
 .session-group-label .live-pulse {
     width: 6px; height: 6px; border-radius: 50%;
     background: var(--running);
@@ -348,15 +351,16 @@ body.resizing-panes * { cursor: col-resize !important; }
 }
 .session-group-label .group-chevron {
     flex-shrink: 0;
+    color: var(--text-muted);
+    transform: rotate(90deg);
     transition: transform 120ms ease;
 }
-.session-group-label .group-chevron.collapsed { transform: rotate(-90deg); }
+.session-group-label .group-chevron.collapsed { transform: rotate(0deg); }
 .session-group-label .group-count {
     color: var(--text-muted);
-    font-weight: 500;
+    font-weight: 600;
     font-variant-numeric: tabular-nums;
 }
-.session-group-label .group-label-spacer { flex: 1; }
 @keyframes pulse {
     0% { box-shadow: 0 0 0 0 var(--running-soft); }
     70% { box-shadow: 0 0 0 6px transparent; }
