@@ -7,6 +7,7 @@ import { initSessionsStore, refreshSessions } from './state/sessions-store'
 import { initLiveConversationStore, startNewSessionInCurrentProject } from './state/live-conversation-store'
 import { initComposerStore } from './state/composer-store'
 import { initCatalogStore } from './state/catalog-store'
+import { initEditorStore } from './state/editor-store'
 import { toastIsError, toastMessage } from './state/toast-store'
 import { installSearchShortcut } from './lib/search-shortcut'
 import { installNewSessionShortcut } from './lib/new-session-shortcut'
@@ -22,6 +23,7 @@ export default function App() {
     const unsubscribeLive = initLiveConversationStore()
     initComposerStore()
     initCatalogStore()
+    initEditorStore()
     void refreshSessions()
 
     const uninstallSearchShortcut = installSearchShortcut()

@@ -22,5 +22,8 @@ export const IpcChannels = {
   liveRowSwapped: 'live:row-swapped',
 
   catalogGetModels: 'catalog:get-models',
-  catalogGetCommands: 'catalog:get-commands'
+  catalogGetCommands: 'catalog:get-commands',
+
+  editorsGetAvailable: 'editors:get-available',
+  editorsOpen: 'editors:open'
 } as const

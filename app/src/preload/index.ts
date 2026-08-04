@@ -4,6 +4,7 @@ import type { SessionsSnapshot } from '../shared/session-types'
 import type { TranscriptEntry, ImageAttachment, ClaudeModelOption, ClaudeCommandOption } from '../shared/transcript-types'
 import type { LiveConversationState, StartLiveSessionResult, ResumeLiveSessionResult } from '../shared/live-session-types'
 import type { StopOutcome } from '../main/sessions-state'
+import type { EditorAvailability, EditorKind } from '../shared/editor-types'
 
 const windowControls = {
   minimize: (): void => ipcRenderer.send(IpcChannels.windowMinimize),
@@ -68,11 +69,18 @@ const catalog = {
     ipcRenderer.invoke(IpcChannels.catalogGetCommands, workingDirectory)
 }
 
+const editors = {
+  getAvailable: (): Promise<EditorAvailability> => ipcRenderer.invoke(IpcChannels.editorsGetAvailable),
+  open: (editor: EditorKind, folderPath: string): Promise<{ success: boolean; error?: string }> =>
+    ipcRenderer.invoke(IpcChannels.editorsOpen, { editor, folderPath })
+}
+
 const navikApi = {
   windowControls,
   sessions,
   live,
-  catalog
+  catalog,
+  editors
 }
 
 contextBridge.exposeInMainWorld('navik', navikApi)

@@ -9,8 +9,10 @@ import { claudeModelCatalog, defaultModel } from './claude-model-catalog'
 import { readTranscript } from './session-transcript-reader'
 import { mergeToolResults } from './transcript-entry-merger'
 import { tryLaunchExternal } from './claude-launcher'
+import { editorState } from './editor-state'
 import type { ImageAttachment } from '../shared/transcript-types'
 import type { LiveSessionRowUpdate } from '../shared/live-session-types'
+import type { EditorKind } from '../shared/editor-types'
 
 function registerWindowControlIpc(): void {
   ipcMain.on(IpcChannels.windowMinimize, (event) => {
@@ -125,11 +127,21 @@ function registerModelCatalogIpc(): void {
   })
 }
 
+function registerEditorsIpc(): void {
+  ipcMain.handle(IpcChannels.editorsGetAvailable, () => editorState.getAvailability())
+
+  ipcMain.handle(IpcChannels.editorsOpen, (_event, request: { editor: EditorKind; folderPath: string }) =>
+    editorState.open(request.editor, request.folderPath)
+  )
+}
+
 app.whenReady().then(async () => {
   registerWindowControlIpc()
   registerSessionsIpc()
   registerLiveSessionIpc()
   registerModelCatalogIpc()
+  registerEditorsIpc()
+  void editorState.init()
   await sessionsState.init()
   await createMainWindow()
 

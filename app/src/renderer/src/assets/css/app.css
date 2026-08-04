@@ -475,12 +475,6 @@ body.resizing-panes * { cursor: col-resize !important; }
 .badge.running .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--running); animation: pulse 1.8s infinite; }
 .badge code { font-family: "Cascadia Code", Consolas, monospace; }
 
-.mono-path {
-    font-family: "Cascadia Code", Consolas, monospace;
-    font-size: 11.5px;
-    color: var(--text-muted);
-}
-
 .session-id-badge,
 .pid-badge {
     display: inline-flex;
@@ -574,6 +568,53 @@ body.resizing-panes * { cursor: col-resize !important; }
     opacity: 0.3;
     pointer-events: none;
 }
+
+/* Open-in-editor split button (open with the default editor; caret picks between VS Code and
+   VS Code Insiders when both are installed) */
+.editor-picker { position: relative; display: flex; align-items: center; flex-shrink: 0; }
+.editor-picker-caret {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 28px;
+    flex-shrink: 0;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    border-radius: var(--radius-sm);
+    transition: background 120ms ease, color 120ms ease;
+}
+.editor-picker-caret:hover { background: var(--bg-elevated-hover); color: var(--text-primary); }
+.editor-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    min-width: 170px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lift);
+    padding: 6px;
+    z-index: 100;
+}
+.editor-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 7px 9px;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    border: none;
+    text-align: left;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+.editor-option:hover { background: var(--bg-elevated-hover); }
+.editor-option.active { background: var(--accent-soft); }
+.editor-option-check { margin-left: auto; flex-shrink: 0; color: var(--accent-strong); display: flex; }
 
 .transcript-scroll {
     flex: 1;

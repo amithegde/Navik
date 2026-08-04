@@ -9,6 +9,7 @@ import Composer from './Composer'
 import TextViewerModal from './TextViewerModal'
 import ImageViewerModal from './ImageViewerModal'
 import HomeView from './HomeView'
+import EditorButton from './EditorButton'
 import { imagePreview, setImagePreview } from '../state/composer-store'
 
 function formatLongDate(iso: string): string {
@@ -123,9 +124,6 @@ export default function DetailPane() {
                         {session().gitBranch}
                       </span>
                     </Show>
-                    <span class="mono-path" title={session().projectPath}>
-                      {session().projectPath}
-                    </span>
                     <CopyIconButton title="Copy the project folder path" onClick={() => copy(session().projectPath, 'Path copied.')} />
                     <Show
                       when={!live() || live()!.hasKnownSessionId || live()!.resolvedSessionId !== null}
@@ -205,6 +203,7 @@ export default function DetailPane() {
                       </svg>
                     </button>
                   </Show>
+                  <EditorButton folderPath={session().projectPath} />
                 </div>
                 <button class="transcript-tool-btn" data-scroll-transcript="top" title="Scroll to the start of the conversation">
                   <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
