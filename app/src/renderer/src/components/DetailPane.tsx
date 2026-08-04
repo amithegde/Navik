@@ -133,7 +133,6 @@ export default function DetailPane() {
                         {session().gitBranch}
                       </span>
                     </Show>
-                    <CopyIconButton title="Copy the project folder path" onClick={() => copy(session().projectPath, 'Path copied.')} />
                     <Show
                       when={!live() || live()!.hasKnownSessionId || live()!.resolvedSessionId !== null}
                       fallback={
