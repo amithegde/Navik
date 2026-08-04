@@ -19,6 +19,10 @@ win:
 
 nsis:
   artifactName: Setup.${ext}
+  # NSIS emits warning 9000 for version-less installer names like "Setup.exe" (Windows applies
+  # appcompat shims to them), and electron-builder treats NSIS warnings as errors by default —
+  # without this the whole win build fails.
+  warningsAsErrors: false
   shortcutName: Navik
   createDesktopShortcut: true
   createStartMenuShortcut: true

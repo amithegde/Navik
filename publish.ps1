@@ -22,7 +22,10 @@ function Invoke-Step {
     param([string]$Description, [string]$Command, [string[]]$Arguments)
 
     Write-Host "==> $Description" -ForegroundColor Cyan
-    & $Command @Arguments
+    # Out-Host keeps the command's stdout on the console; without it the output is captured into
+    # the caller's assignment, which both hides the build log and makes the returned value a
+    # truthy array even when the command failed.
+    & $Command @Arguments | Out-Host
     return $LASTEXITCODE -eq 0
 }
 
