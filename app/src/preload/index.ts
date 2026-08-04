@@ -33,6 +33,10 @@ const sessions = {
   }
 }
 
+const projects = {
+  pickFolder: (): Promise<string | null> => ipcRenderer.invoke(IpcChannels.projectsPickFolder)
+}
+
 const live = {
   startNew: (projectPath: string, permissionMode?: string, model?: string): Promise<StartLiveSessionResult> =>
     ipcRenderer.invoke(IpcChannels.liveStartNew, { projectPath, permissionMode, model }),
@@ -78,6 +82,7 @@ const editors = {
 const navikApi = {
   windowControls,
   sessions,
+  projects,
   live,
   catalog,
   editors

@@ -68,6 +68,16 @@ function registerSessionsIpc(): void {
   sessionsState.on('changed', (snapshot) => broadcast(IpcChannels.sessionsChanged, snapshot))
 }
 
+function registerProjectsIpc(): void {
+  ipcMain.handle(IpcChannels.projectsPickFolder, async (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    const options = { properties: ['openDirectory' as const, 'createDirectory' as const] }
+    const result = win ? await dialog.showOpenDialog(win, options) : await dialog.showOpenDialog(options)
+    if (result.canceled || result.filePaths.length === 0) return null
+    return result.filePaths[0]
+  })
+}
+
 function registerLiveSessionIpc(): void {
   ipcMain.handle(
     IpcChannels.liveStartNew,
@@ -138,6 +148,7 @@ function registerEditorsIpc(): void {
 app.whenReady().then(async () => {
   registerWindowControlIpc()
   registerSessionsIpc()
+  registerProjectsIpc()
   registerLiveSessionIpc()
   registerModelCatalogIpc()
   registerEditorsIpc()

@@ -12,6 +12,8 @@ export const IpcChannels = {
   sessionsStop: 'sessions:stop',
   sessionsPickFile: 'sessions:pick-file',
 
+  projectsPickFolder: 'projects:pick-folder',
+
   liveStartNew: 'live:start-new',
   liveResume: 'live:resume',
   liveSendMessage: 'live:send-message',

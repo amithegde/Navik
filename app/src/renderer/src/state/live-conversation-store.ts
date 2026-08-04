@@ -3,6 +3,7 @@ import type { TranscriptEntry, ImageAttachment } from '@shared/transcript-types'
 import type { LiveConversationState } from '@shared/live-session-types'
 import { selectedProjectFilter, selectedSession, selectSession } from './sessions-store'
 import { showToast } from './toast-store'
+import { openProjectSelectModal } from './project-select-store'
 
 const externalPollIntervalMs = 4_000
 
@@ -163,19 +164,27 @@ export async function setCurrentPermissionMode(mode: string): Promise<void> {
   if (isLive()) await window.navik.live.setPermissionMode(liveState()!.key, mode)
 }
 
-/** The one-click entry point for starting a session in the project currently selected via the
- * sidebar's project-chip filter — the sidebar "New session" button and the Ctrl+N shortcut both
- * funnel through here rather than through a dialog asking what they already know (the project). */
-export function startNewSessionInCurrentProject(): void {
-  const projectPath = selectedProjectFilter()
-  if (!projectPath) {
-    showToast('Select a project first.', true)
-    return
-  }
+/** Launches a new session directly in the given project — model and permission mode are left
+ * unset so the main process falls back to its own defaults; the project-select modal and the
+ * sidebar's one-click path both funnel through here rather than prompting for anything else. */
+export function startNewSessionInProject(projectPath: string): void {
   void window.navik.live.startNew(projectPath).then((result) => {
     if (result.success && result.placeholderId) selectSession(result.placeholderId)
     showToast(result.success ? `Starting a new session in ${projectPath}…` : result.error ?? 'Failed to launch.', !result.success)
   })
+}
+
+/** The one-click entry point for starting a session in the project currently selected via the
+ * sidebar's project-chip filter — the sidebar "New session" button and the Ctrl+N shortcut both
+ * funnel through here rather than through a dialog asking what they already know (the project).
+ * With no project selected, opens the project-select modal instead of guessing. */
+export function startNewSessionInCurrentProject(): void {
+  const projectPath = selectedProjectFilter()
+  if (!projectPath) {
+    openProjectSelectModal()
+    return
+  }
+  startNewSessionInProject(projectPath)
 }
 
 export { liveState, historicalEntries, isLoadingTranscript, resumingSessionId }

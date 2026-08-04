@@ -3,6 +3,7 @@ import TitleBar from './components/TitleBar'
 import Sidebar from './components/Sidebar'
 import DetailPane from './components/DetailPane'
 import KeyboardShortcutsModal from './components/KeyboardShortcutsModal'
+import ProjectSelectModal from './components/ProjectSelectModal'
 import { initSessionsStore, refreshSessions } from './state/sessions-store'
 import { initLiveConversationStore, startNewSessionInCurrentProject } from './state/live-conversation-store'
 import { initComposerStore } from './state/composer-store'
@@ -65,6 +66,7 @@ export default function App() {
         </div>
       )}
       <KeyboardShortcutsModal isOpen={shortcutsOpen()} onClose={() => setShortcutsOpen(false)} />
+      <ProjectSelectModal />
     </div>
   )
 }
