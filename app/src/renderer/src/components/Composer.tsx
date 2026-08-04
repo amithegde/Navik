@@ -13,7 +13,17 @@ import {
   setPendingImages
 } from '../state/composer-store'
 import { availableCommands, availableModels } from '../state/catalog-store'
-import { isLive, liveState, paneModel, panePermissionMode, resumingSessionId, sendDraft, setCurrentModel, setCurrentPermissionMode } from '../state/live-conversation-store'
+import {
+  isLive,
+  liveState,
+  paneModel,
+  panePermissionMode,
+  resumingSessionId,
+  sendDraft,
+  setCurrentModel,
+  setCurrentPermissionMode,
+  stopCurrentSession
+} from '../state/live-conversation-store'
 import { selectedSession } from '../state/sessions-store'
 import { showToast } from '../state/toast-store'
 import { autosizeTextarea, installComposerAutosizeWidthObserver } from '../lib/composer-autosize'
@@ -45,6 +55,32 @@ export default function Composer() {
   const isBusy = (): boolean => isLive() && liveState()!.isBusy
   const currentModel = (): string => (isLive() ? liveState()!.model : paneModel())
   const currentPermissionMode = (): string => (isLive() ? liveState()!.permissionMode : panePermissionMode())
+  const canStop = (): boolean => isLive() || !!selectedSession()?.running
+
+  // Stopping a session this app drives ends a conversation that's right here in the composer;
+  // stopping one running elsewhere kills a process behind another window, so that case says so
+  // explicitly rather than reading as if it only closed something local.
+  const stopButtonTitle = (): string => {
+    const live = liveState()
+    if (live && !live.hasExited) {
+      const pidPart = ` (pid ${live.processId})`
+      return live.isBusy
+        ? `Stop the current run and end this session — kills the claude.exe running it${pidPart}`
+        : `End this live session — kills the claude.exe running it${pidPart}`
+    }
+    const pidPart = selectedSession()?.running ? ` (pid ${selectedSession()!.running!.pid})` : ''
+    return `Stop this session — kills the claude.exe running it${pidPart}, wherever it was started from`
+  }
+
+  async function handleStop(): Promise<void> {
+    const result = await stopCurrentSession()
+    if (!result) return
+    if (result.outcome === 'failed') {
+      showToast(result.error ? `Failed to stop the session: ${result.error}` : 'Failed to stop the session.', true)
+      return
+    }
+    showToast(result.outcome === 'stopped' ? 'Stopped — claude.exe was terminated.' : "That session's claude.exe had already exited.")
+  }
 
   const filteredCommands = createMemo<ClaudeCommandOption[]>(() => {
     const fragment = trySlashFragment(draftText())
@@ -290,6 +326,13 @@ export default function Composer() {
           <PermissionModePicker value={currentPermissionMode()} disabled={isResuming()} onChange={(m) => void setCurrentPermissionMode(m)} />
           <ModelPicker value={currentModel()} options={availableModels()} disabled={isResuming()} onChange={(m) => void setCurrentModel(m)} />
           <div class="composer-toolbar-spacer" />
+          <Show when={canStop()}>
+            <button type="button" class="composer-icon-btn danger" title={stopButtonTitle()} onClick={() => void handleStop()}>
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                <rect x="4" y="4" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.4" />
+              </svg>
+            </button>
+          </Show>
           <button
             type="button"
             class="composer-send-icon"

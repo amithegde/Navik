@@ -1,6 +1,6 @@
 import { createEffect, createSignal, For, onCleanup, onMount, Show } from 'solid-js'
 import { isPinned, selectedSession, togglePinned } from '../state/sessions-store'
-import { displayEntries, isLoadingTranscript, liveState, stopCurrentSession } from '../state/live-conversation-store'
+import { displayEntries, isLoadingTranscript, liveState } from '../state/live-conversation-store'
 import { showToast } from '../state/toast-store'
 import { formatRelativeTime } from '../lib/relative-time'
 import { TranscriptScrollController, installTranscriptToolbarScrollButtons } from '../lib/transcript-scroll'
@@ -30,16 +30,6 @@ function CopyIconButton(props: { title: string; onClick: () => void }) {
       </svg>
     </button>
   )
-}
-
-// Stopping a session this app drives ends a conversation that's right here on screen; stopping
-// one running elsewhere kills a process behind another window, so that case says so explicitly
-// rather than reading as if it only closed something local.
-function stopButtonTitle(): string {
-  const live = liveState()
-  if (live && !live.hasExited) return live.isBusy ? 'Stop the current run and end this session' : 'End this live session'
-  const pidPart = selectedSession()?.running ? ` (pid ${selectedSession()!.running!.pid})` : ''
-  return `Stop this session — kills the claude.exe running it${pidPart}, wherever it was started from`
 }
 
 export default function DetailPane() {
@@ -73,16 +63,6 @@ export default function DetailPane() {
     liveState()?.isBusy
     scrollController.notifyContentChanged()
   })
-
-  async function handleStop(): Promise<void> {
-    const result = await stopCurrentSession()
-    if (!result) return
-    if (result.outcome === 'failed') {
-      showToast(result.error ? `Failed to stop the session: ${result.error}` : 'Failed to stop the session.', true)
-      return
-    }
-    showToast(result.outcome === 'stopped' ? 'Stopped — claude.exe was terminated.' : "That session's claude.exe had already exited.")
-  }
 
   async function handleOpenInTerminal(): Promise<void> {
     const session = selectedSession()
@@ -206,14 +186,7 @@ export default function DetailPane() {
                       />
                     </svg>
                   </button>
-                  <Show when={(live() && !live()!.hasExited) || session().running}>
-                    <button type="button" class="transcript-tool-btn danger" title={stopButtonTitle()} onClick={() => void handleStop()}>
-                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                        <rect x="4" y="4" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.4" />
-                      </svg>
-                    </button>
-                  </Show>
-                  <Show when={!live() || live()!.hasKnownSessionId}>
+                  <Show when={!live() || live()!.hasKnownSessionId || live()!.resolvedSessionId !== null}>
                     <button
                       type="button"
                       class="transcript-tool-btn"

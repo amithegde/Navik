@@ -1144,6 +1144,8 @@ body.resizing-panes * { cursor: col-resize !important; }
 }
 .composer-icon-btn:hover { background: var(--bg-elevated-hover); color: var(--text-primary); }
 .composer-icon-btn:disabled { opacity: 0.5; }
+.composer-icon-btn.danger { color: var(--danger); }
+.composer-icon-btn.danger:hover { background: var(--danger); color: white; }
 .composer-send-icon {
     display: flex;
     align-items: center;
