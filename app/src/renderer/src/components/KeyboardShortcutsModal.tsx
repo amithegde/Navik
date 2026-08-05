@@ -16,6 +16,7 @@ const groups: ShortcutGroup[] = [
     rows: [
       { keys: ['Ctrl', 'N'], desc: 'Start a new session in the current project' },
       { keys: ['Ctrl', 'K'], desc: 'Focus the session search box' },
+      { keys: ['Ctrl', 'M'], desc: 'Quick-switch model and effort' },
       { keys: ['Alt', '←'], desc: 'Go back to the previous page' },
       { keys: ['Alt', '→'], desc: 'Go forward to the next page' },
       { keys: ['Esc'], desc: 'Exit zen mode' }
@@ -35,6 +36,15 @@ const groups: ShortcutGroup[] = [
   {
     title: 'Viewers',
     rows: [{ keys: ['Esc'], desc: 'Close the open viewer or dialog' }]
+  },
+  {
+    title: 'Quick switch (Ctrl+M)',
+    rows: [
+      { keys: ['↑', '↓'], desc: 'Move selection in the focused list' },
+      { keys: ['←', '→'], desc: 'Switch between the model and effort lists' },
+      { keys: ['Enter'], desc: 'Apply the selection for the next request' },
+      { keys: ['Esc'], desc: 'Close without changing anything' }
+    ]
   }
 ]
 

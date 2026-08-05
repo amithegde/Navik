@@ -1033,6 +1033,90 @@ body.resizing-panes * { cursor: col-resize !important; }
 }
 .shortcuts-desc { font-size: 12.5px; color: var(--text-secondary); text-align: right; }
 
+/* Quick model/effort switcher, opened with Alt+Space. Reuses .shortcuts-head/.shortcuts-kbd and
+   the .mode-option row family so it reads as one of the existing popups, not a new design. */
+.quick-picker-modal {
+    position: fixed;
+    top: 14vh;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    width: min(560px, 92vw);
+    max-height: 74vh;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lift);
+    z-index: 200;
+    overflow: hidden;
+}
+.quick-picker-modal:focus { outline: none; }
+.quick-picker-body {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    gap: 1px;
+    background: var(--border-subtle);
+}
+.quick-picker-section {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-elevated);
+    padding: 10px 12px 12px;
+}
+.quick-picker-section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+.quick-picker-section-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+}
+.quick-picker-section.focused .quick-picker-section-title { color: var(--accent-strong); }
+.quick-picker-hint { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+.quick-picker-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    margin: 0 -4px;
+    padding: 0 4px;
+}
+.quick-picker-row { padding: 7px 9px; }
+.quick-picker-empty {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.4;
+    padding: 6px 2px;
+}
+.quick-picker-foot {
+    flex-shrink: 0;
+    border-top: 1px solid var(--border-subtle);
+    padding: 8px 14px;
+}
+.quick-picker-foot-hint {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    font-size: 11px;
+    color: var(--text-muted);
+}
+.quick-picker-foot-hint .shortcuts-kbd { margin-right: 2px; }
+
 /* Project picker, opened when starting a new session with no project selected */
 .project-select-overlay {
     position: fixed;
