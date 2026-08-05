@@ -1,0 +1,30 @@
+:root[data-theme="sorbet"] {
+    --bg-app: #eef5db;
+    --bg-rail: #e3edd0;
+    --bg-panel: #e3edd0;
+    --bg-elevated: #fbfdf3;
+    --bg-elevated-hover: #ffffff;
+    --bg-elevated-active: #f1f5e2;
+    --bg-input: #fbfdf3;
+
+    --border-subtle: rgba(40, 45, 30, 0.07);
+    --border-default: rgba(40, 45, 30, 0.12);
+    --border-strong: rgba(40, 45, 30, 0.2);
+
+    --text-primary: #36332a;
+    --text-secondary: #615c4a;
+    --text-muted: #8a8e72;
+
+    --accent: #fe5f55;
+    --accent-strong: #e84940;
+    --accent-soft: rgba(254, 95, 85, 0.12);
+    --accent-soft-strong: rgba(254, 95, 85, 0.22);
+
+    --running: #4ea865;
+    --running-soft: rgba(78, 168, 101, 0.14);
+    --danger: #c0392b;
+    --warn: #c98a12;
+
+    --shadow-lift: 0 8px 24px rgba(40, 45, 30, 0.12);
+    color-scheme: light;
+}

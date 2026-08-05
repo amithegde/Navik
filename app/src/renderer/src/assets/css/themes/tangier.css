@@ -1,0 +1,30 @@
+:root[data-theme="tangier"] {
+    --bg-app: #001524;
+    --bg-rail: #000e1a;
+    --bg-panel: #000e1a;
+    --bg-elevated: #062a40;
+    --bg-elevated-hover: #0c3a48;
+    --bg-elevated-active: #104554;
+    --bg-input: #000a14;
+
+    --border-subtle: rgba(21, 97, 109, 0.2);
+    --border-default: rgba(21, 97, 109, 0.34);
+    --border-strong: rgba(21, 97, 109, 0.5);
+
+    --text-primary: #ffecd1;
+    --text-secondary: #d9c4a0;
+    --text-muted: #4d9499;
+
+    --accent: #ff7d00;
+    --accent-strong: #ff9d3d;
+    --accent-soft: rgba(255, 125, 0, 0.18);
+    --accent-soft-strong: rgba(255, 125, 0, 0.32);
+
+    --running: #4ecca0;
+    --running-soft: rgba(78, 204, 160, 0.18);
+    --danger: #c8451c;
+    --warn: #f0a830;
+
+    --shadow-lift: 0 8px 24px rgba(0, 0, 0, 0.5);
+    color-scheme: dark;
+}

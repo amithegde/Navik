@@ -1,0 +1,30 @@
+:root[data-theme="fjord"] {
+    --bg-app: #253237;
+    --bg-rail: #1c262a;
+    --bg-panel: #1c262a;
+    --bg-elevated: #5c6b73;
+    --bg-elevated-hover: #6c7b83;
+    --bg-elevated-active: #77888f;
+    --bg-input: #162026;
+
+    --border-subtle: rgba(157, 180, 192, 0.12);
+    --border-default: rgba(157, 180, 192, 0.22);
+    --border-strong: rgba(157, 180, 192, 0.36);
+
+    --text-primary: #e0fbfc;
+    --text-secondary: #c2dfe3;
+    --text-muted: #9db4c0;
+
+    --accent: #5fb8c8;
+    --accent-strong: #82cedb;
+    --accent-soft: rgba(95, 184, 200, 0.18);
+    --accent-soft-strong: rgba(95, 184, 200, 0.32);
+
+    --running: #4ecca0;
+    --running-soft: rgba(78, 204, 160, 0.18);
+    --danger: #e15454;
+    --warn: #e6a833;
+
+    --shadow-lift: 0 8px 24px rgba(0, 0, 0, 0.45);
+    color-scheme: dark;
+}

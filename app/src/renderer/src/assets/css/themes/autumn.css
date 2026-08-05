@@ -1,0 +1,30 @@
+:root[data-theme="autumn"] {
+    --bg-app: #003049;
+    --bg-rail: #00293e;
+    --bg-panel: #00293e;
+    --bg-elevated: #013a55;
+    --bg-elevated-hover: #0a4767;
+    --bg-elevated-active: #11506f;
+    --bg-input: #001f30;
+
+    --border-subtle: rgba(252, 191, 73, 0.12);
+    --border-default: rgba(252, 191, 73, 0.22);
+    --border-strong: rgba(252, 191, 73, 0.36);
+
+    --text-primary: #eae2b7;
+    --text-secondary: #c7bd99;
+    --text-muted: #b89b6a;
+
+    --accent: #f77f00;
+    --accent-strong: #fcbf49;
+    --accent-soft: rgba(247, 127, 0, 0.18);
+    --accent-soft-strong: rgba(247, 127, 0, 0.32);
+
+    --running: #7cb342;
+    --running-soft: rgba(124, 179, 66, 0.18);
+    --danger: #d62828;
+    --warn: #fcbf49;
+
+    --shadow-lift: 0 8px 24px rgba(0, 0, 0, 0.4);
+    color-scheme: dark;
+}

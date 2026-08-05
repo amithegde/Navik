@@ -1,0 +1,30 @@
+:root[data-theme="sienna"] {
+    --bg-app: #21130f;
+    --bg-rail: #1b0f0c;
+    --bg-panel: #1b0f0c;
+    --bg-elevated: #2c1a15;
+    --bg-elevated-hover: #3a241d;
+    --bg-elevated-active: #452c24;
+    --bg-input: #150b09;
+
+    --border-subtle: rgba(255, 181, 99, 0.12);
+    --border-default: rgba(255, 181, 99, 0.22);
+    --border-strong: rgba(255, 181, 99, 0.36);
+
+    --text-primary: #ffd29d;
+    --text-secondary: #ffb563;
+    --text-muted: #918450;
+
+    --accent: #f85e00;
+    --accent-strong: #ff8420;
+    --accent-soft: rgba(248, 94, 0, 0.18);
+    --accent-soft-strong: rgba(248, 94, 0, 0.32);
+
+    --running: #9fae4a;
+    --running-soft: rgba(159, 174, 74, 0.18);
+    --danger: #a41623;
+    --warn: #ffb563;
+
+    --shadow-lift: 0 8px 24px rgba(0, 0, 0, 0.45);
+    color-scheme: dark;
+}
