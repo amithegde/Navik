@@ -1066,7 +1066,26 @@ body.resizing-panes * { cursor: col-resize !important; }
     flex-direction: column;
     background: var(--bg-elevated);
     padding: 10px 12px 12px;
+    position: relative;
+    transition: background-color 0.12s ease;
 }
+/* Active-pane emphasis: a top accent stripe + soft accent tint make it obvious which side the
+   arrows will move, independent of the per-row highlight. */
+.quick-picker-section.focused {
+    background: var(--accent-soft);
+}
+.quick-picker-section.focused::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--accent-strong);
+}
+/* Dim the inactive pane's list so the eye lands on the active one. Title stays full-strength so
+   both labels remain readable. */
+.quick-picker-section:not(.focused) .quick-picker-list { opacity: 0.5; }
 .quick-picker-section-head {
     display: flex;
     align-items: baseline;

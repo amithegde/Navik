@@ -12,6 +12,16 @@ export const [imagePreview, setImagePreview] = createSignal<ImageAttachment | nu
 export const [commandMenuOpen, setCommandMenuOpen] = createSignal(false)
 export const [commandMenuIndex, setCommandMenuIndex] = createSignal(0)
 
+// Focus-request channel: bumping this tick asks the Composer (the only thing with a handle on the
+// textarea ref) to refocus its input. Used after a transient overlay — e.g. the quick model/effort
+// modal — closes, so typing can resume without a manual click. A tick (not a bool) so successive
+// requests always register as a change even if they come back-to-back.
+const [composerFocusTick, bumpComposerFocus] = createSignal(0)
+export function focusComposer(): void {
+  bumpComposerFocus((n) => n + 1)
+}
+export { composerFocusTick }
+
 let pendingImagesSessionId: string | null = null
 
 /** Must be called once from a component with an active reactive root (App.tsx's onMount) — a

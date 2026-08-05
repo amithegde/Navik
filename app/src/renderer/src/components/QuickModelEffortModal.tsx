@@ -1,5 +1,6 @@
-import { createEffect, createMemo, createSignal, For, JSX, onCleanup, Show, untrack } from 'solid-js'
+import { createEffect, createMemo, createSignal, For, JSX, on, onCleanup, Show, untrack } from 'solid-js'
 import { availableModels } from '../state/catalog-store'
+import { focusComposer } from '../state/composer-store'
 import { isLive, liveState, paneEffort, paneModel, setCurrentEffort, setCurrentModel } from '../state/live-conversation-store'
 import { closeQuickModelEffort, quickModelEffortOpen } from '../state/quick-model-effort-store'
 
@@ -79,6 +80,15 @@ export default function QuickModelEffortModal() {
     document.addEventListener('focusin', reclaim, true)
     onCleanup(() => document.removeEventListener('focusin', reclaim, true))
   })
+
+  // On close, hand focus back to the composer textbox so the user can keep typing their prompt
+  // (or just resume where they left off). The microtask lands after the <Show> has unmounted the
+  // frame and the reclaim listener's cleanup has run, so nothing fights the focus move.
+  createEffect(
+    on(quickModelEffortOpen, (open, prev) => {
+      if (prev && !open) queueMicrotask(focusComposer)
+    }, { defer: true })
+  )
 
   // Keep the highlighted row scrolled into view as the arrows move it.
   let modelRowRefs: (HTMLButtonElement | undefined)[] = []

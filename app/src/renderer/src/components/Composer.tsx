@@ -1,8 +1,9 @@
-import { createEffect, createMemo, For, onCleanup, onMount, Show } from 'solid-js'
+import { createEffect, createMemo, For, on, onCleanup, onMount, Show } from 'solid-js'
 import type { ClaudeCommandOption, ClaudeModelOption } from '@shared/transcript-types'
 import {
   commandMenuIndex,
   commandMenuOpen,
+  composerFocusTick,
   draftText,
   pendingImages,
   removePendingImage,
@@ -259,6 +260,15 @@ export default function Composer() {
     selectedSession()?.sessionId
     textareaRef?.focus()
   })
+
+  // External focus requests — currently fired when the quick model/effort modal closes so the user
+  // can keep typing the prompt they were mid-compose on. defer: the initial tick value isn't a
+  // request (and the session-change effect above already covers first focus).
+  createEffect(
+    on(composerFocusTick, () => {
+      textareaRef?.focus()
+    }, { defer: true })
+  )
 
   const placeholder = (): string => (isResuming() ? 'Starting…' : isBusy() ? 'Queue another message…' : 'Message Claude…')
   const sendDisabled = (): boolean => isResuming() || (!draftText().trim() && pendingImages().length === 0)
