@@ -1,6 +1,7 @@
 import type { ClaudeSession } from '@shared/session-types'
 import { isPinned, selectSession, togglePinned } from '../state/sessions-store'
 import { formatRelativeTime } from '../lib/relative-time'
+import { applyTitleIfTruncated } from '../lib/truncated-title'
 
 export default function HomeSessionCard(props: { session: ClaudeSession }) {
   const pinned = (): boolean => isPinned(props.session.sessionId)
@@ -9,7 +10,12 @@ export default function HomeSessionCard(props: { session: ClaudeSession }) {
     <div class="home-session-card" onClick={() => selectSession(props.session.sessionId)}>
       <div class="home-session-card-top">
         <span class="status-dot" classList={{ running: !!props.session.running }} />
-        <span class="home-session-card-title">{props.session.title}</span>
+        <span
+          class="home-session-card-title"
+          onMouseEnter={(e) => applyTitleIfTruncated(e.currentTarget, props.session.title)}
+        >
+          {props.session.title}
+        </span>
         <button
           type="button"
           class="home-session-pin"

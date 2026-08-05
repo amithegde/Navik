@@ -15,6 +15,7 @@ import {
 import { startNewSessionInCurrentProject } from '../state/live-conversation-store'
 import { openSettingsModal } from '../state/settings-store'
 import { formatRelativeTime } from '../lib/relative-time'
+import { applyTitleIfTruncated } from '../lib/truncated-title'
 import { ordinalIgnoreCaseCompare } from '@shared/text'
 
 interface SessionGroup {
@@ -227,7 +228,12 @@ export default function Sidebar() {
                       >
                         <span class="status-dot" classList={{ running: !!session.running }} />
                         <div class="session-text">
-                          <div class="session-title">{session.title}</div>
+                          <div
+                            class="session-title"
+                            onMouseEnter={(e) => applyTitleIfTruncated(e.currentTarget, session.title)}
+                          >
+                            {session.title}
+                          </div>
                           <div class="session-meta">
                             <span class="project-name">{session.projectDisplayName}</span>
                             <span class="dot-sep" />
