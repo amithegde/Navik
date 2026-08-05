@@ -12,6 +12,52 @@ function editorLabel(kind: EditorKind): string {
   return kind === 'vscode-insiders' ? 'VS Code Insiders' : 'VS Code'
 }
 
+function VsCodeMark(props: { size: number }) {
+  return (
+    <svg width={props.size} height={props.size} viewBox="0 0 32 32" fill="none" aria-hidden="true">
+      <path
+        d="M29.01,5.03,23.244,2.254a1.742,1.742,0,0,0-1.989.338L2.38,19.8A1.166,1.166,0,0,0,2.3,21.447c.025.027.05.053.077.077l1.541,1.4a1.165,1.165,0,0,0,1.489.066L28.142,5.75A1.158,1.158,0,0,1,30,6.672V6.605A1.748,1.748,0,0,0,29.01,5.03Z"
+        fill="#0065a9"
+      />
+      <path
+        d="M29.01,26.97l-5.766,2.777a1.745,1.745,0,0,1-1.989-.338L2.38,12.2A1.166,1.166,0,0,1,2.3,10.553c.025-.027.05-.053.077-.077l1.541-1.4A1.165,1.165,0,0,1,5.41,9.01L28.142,26.25A1.158,1.158,0,0,0,30,25.328V25.4A1.749,1.749,0,0,1,29.01,26.97Z"
+        fill="#007acc"
+      />
+      <path
+        d="M23.244,29.747a1.745,1.745,0,0,1-1.989-.338A1.025,1.025,0,0,0,23,28.684V3.316a1.024,1.024,0,0,0-1.749-.724,1.744,1.744,0,0,1,1.989-.339l5.765,2.772A1.748,1.748,0,0,1,30,6.6V25.4a1.748,1.748,0,0,1-.991,1.576Z"
+        fill="#1f9cf0"
+      />
+    </svg>
+  )
+}
+
+function VsCodeInsidersMark(props: { size: number }) {
+  return (
+    <svg width={props.size} height={props.size} viewBox="0 0 32 32" fill="none" aria-hidden="true">
+      <path
+        d="M29.01,5.03,23.244,2.254a1.742,1.742,0,0,0-1.989.338L2.38,19.8A1.166,1.166,0,0,0,2.3,21.447c.025.027.05.053.077.077l1.541,1.4a1.165,1.165,0,0,0,1.489.066L28.142,5.75A1.158,1.158,0,0,1,30,6.672V6.605A1.748,1.748,0,0,0,29.01,5.03Z"
+        fill="#16825d"
+      />
+      <path
+        d="M29.01,26.97l-5.766,2.777a1.745,1.745,0,0,1-1.989-.338L2.38,12.2A1.166,1.166,0,0,1,2.3,10.553c.025-.027.05-.053.077-.077l1.541-1.4A1.165,1.165,0,0,1,5.41,9.01L28.142,26.25A1.158,1.158,0,0,0,30,25.328V25.4A1.749,1.749,0,0,1,29.01,26.97Z"
+        fill="#1fae74"
+      />
+      <path
+        d="M23.244,29.747a1.745,1.745,0,0,1-1.989-.338A1.025,1.025,0,0,0,23,28.684V3.316a1.024,1.024,0,0,0-1.749-.724,1.744,1.744,0,0,1,1.989-.339l5.765,2.772A1.748,1.748,0,0,1,30,6.6V25.4a1.748,1.748,0,0,1-.991,1.576Z"
+        fill="#37bb91"
+      />
+    </svg>
+  )
+}
+
+function EditorMark(props: { kind: EditorKind; size: number }) {
+  return props.kind === 'vscode-insiders' ? (
+    <VsCodeInsidersMark size={props.size} />
+  ) : (
+    <VsCodeMark size={props.size} />
+  )
+}
+
 export default function EditorButton(props: { folderPath: string }) {
   const [open, setOpen] = createSignal(false)
 
@@ -48,15 +94,7 @@ export default function EditorButton(props: { folderPath: string }) {
             title={`Open this project in ${editorLabel(active())}`}
             onClick={() => void launch(active())}
           >
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-              <path
-                d="M5.5 4L2 8l3.5 4M10.5 4L14 8l-3.5 4"
-                stroke="currentColor"
-                stroke-width="1.3"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
+            <EditorMark kind={active()} size={16} />
           </button>
           <Show when={options().length > 1}>
             <button type="button" class="editor-picker-caret" title="Choose an editor" onClick={() => setOpen(!open())}>
@@ -75,6 +113,7 @@ export default function EditorButton(props: { folderPath: string }) {
                       classList={{ active: opt.kind === active() }}
                       onClick={() => void launch(opt.kind)}
                     >
+                      <EditorMark kind={opt.kind} size={16} />
                       {opt.label}
                       <Show when={opt.kind === active()}>
                         <span class="editor-option-check">
