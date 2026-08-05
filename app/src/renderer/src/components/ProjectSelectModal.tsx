@@ -3,10 +3,6 @@ import { projects, setProjectFilter } from '../state/sessions-store'
 import { startNewSessionInProject } from '../state/live-conversation-store'
 import { closeProjectSelectModal, projectSelectModalOpen } from '../state/project-select-store'
 
-function projectInitial(name: string): string {
-  return name.trim().charAt(0).toUpperCase() || '?'
-}
-
 export default function ProjectSelectModal() {
   let frameRef: HTMLDivElement | undefined
   let inputRef: HTMLInputElement | undefined
@@ -72,7 +68,6 @@ export default function ProjectSelectModal() {
             <For each={projects()}>
               {(project) => (
                 <button type="button" class="project-select-row" title={project.path} onClick={() => startKnownProject(project.path)}>
-                  <span class="chip-icon">{projectInitial(project.displayName)}</span>
                   <span class="project-select-row-name">{project.displayName}</span>
                   <span class="chip-count">{project.sessionCount}</span>
                 </button>
