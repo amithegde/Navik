@@ -4,7 +4,7 @@ import { discoverSessions, groupByProject, getDisplayName, truncate } from './se
 import { getRunningBySessionId } from './running-session-registry'
 import { stopRunningSession } from './running-session-terminator'
 import { loadPinnedSessionIds, savePinnedSessionIds } from './pinned-sessions-store'
-import { liveSessionManager, defaultModelValue, defaultPermissionMode } from './live-sessions'
+import { liveSessionManager, defaultModelValue, defaultPermissionMode, defaultEffortValue } from './live-sessions'
 import type { ClaudeSession, SessionsSnapshot } from '../shared/session-types'
 import type { LiveSessionRowUpdate, StartLiveSessionResult, ResumeLiveSessionResult } from '../shared/live-session-types'
 
@@ -66,9 +66,10 @@ class SessionsState extends EventEmitter {
   startNewSessionInProject(
     projectPath: string,
     permissionMode: string = defaultPermissionMode,
-    model: string = defaultModelValue
+    model: string = defaultModelValue,
+    effort: string = defaultEffortValue
   ): StartLiveSessionResult {
-    return liveSessionManager.startNew(projectPath, permissionMode, model)
+    return liveSessionManager.startNew(projectPath, permissionMode, model, effort)
   }
 
   async resumeSession(
@@ -76,9 +77,10 @@ class SessionsState extends EventEmitter {
     projectPath: string,
     transcriptPath: string,
     permissionMode: string = defaultPermissionMode,
-    model: string = defaultModelValue
+    model: string = defaultModelValue,
+    effort: string = defaultEffortValue
   ): Promise<ResumeLiveSessionResult> {
-    return liveSessionManager.resume(sessionId, projectPath, transcriptPath, permissionMode, model)
+    return liveSessionManager.resume(sessionId, projectPath, transcriptPath, permissionMode, model, effort)
   }
 
   async sendLiveMessage(key: string, text: string, images?: Array<{ mediaType: string; base64Data: string }>): Promise<void> {
@@ -91,6 +93,10 @@ class SessionsState extends EventEmitter {
 
   async setLivePermissionMode(key: string, mode: string): Promise<void> {
     await liveSessionManager.setPermissionMode(key, mode)
+  }
+
+  async setLiveEffort(key: string, level: string): Promise<void> {
+    await liveSessionManager.setEffort(key, level)
   }
 
   /** Stops whatever claude.exe is behind a session, whether this app spawned it or not — a live

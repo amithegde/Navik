@@ -19,6 +19,7 @@ export const IpcChannels = {
   liveSendMessage: 'live:send-message',
   liveSetModel: 'live:set-model',
   liveSetPermissionMode: 'live:set-permission-mode',
+  liveSetEffort: 'live:set-effort',
   liveGetState: 'live:get-state',
   liveConversationChanged: 'live:conversation-changed',
   liveRowSwapped: 'live:row-swapped',

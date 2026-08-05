@@ -10,6 +10,8 @@ import type { LiveConversationState, LiveSessionRowUpdate } from '../shared/live
 
 export const defaultPermissionMode = 'auto'
 export const defaultModelValue = 'default'
+/** '' = Auto: no --effort flag, the model uses its own default effort. */
+export const defaultEffortValue = ''
 
 interface LiveSessionRecord {
   placeholderId: string
@@ -18,6 +20,7 @@ interface LiveSessionRecord {
   workingDirectory: string
   permissionMode: string
   model: string
+  effort: string
   entries: TranscriptEntry[]
   firstUserMessageText: string | null
   pendingTurnCount: number
@@ -79,12 +82,12 @@ class LiveSessionManager extends EventEmitter {
       }))
   }
 
-  startNew(workingDirectory: string, permissionMode = defaultPermissionMode, model = defaultModelValue): { success: boolean; error?: string; placeholderId?: string } {
+  startNew(workingDirectory: string, permissionMode = defaultPermissionMode, model = defaultModelValue, effort = defaultEffortValue): { success: boolean; error?: string; placeholderId?: string } {
     if (!this.claudePath) return { success: false, error: 'Could not find claude.exe on PATH or in ~/.local/bin.' }
 
     let child: ClaudeLiveSession
     try {
-      child = ClaudeLiveSession.start(this.claudePath, workingDirectory, { permissionMode, model })
+      child = ClaudeLiveSession.start(this.claudePath, workingDirectory, { permissionMode, model, effort })
     } catch (err) {
       return { success: false, error: `Failed to launch: ${(err as Error).message}` }
     }
@@ -97,6 +100,7 @@ class LiveSessionManager extends EventEmitter {
       workingDirectory,
       permissionMode,
       model,
+      effort,
       entries: [],
       firstUserMessageText: null,
       pendingTurnCount: 0,
@@ -116,7 +120,8 @@ class LiveSessionManager extends EventEmitter {
     workingDirectory: string,
     transcriptPath: string,
     permissionMode = defaultPermissionMode,
-    model = defaultModelValue
+    model = defaultModelValue,
+    effort = defaultEffortValue
   ): Promise<{ success: boolean; error?: string }> {
     if (!this.claudePath) return { success: false, error: 'Could not find claude.exe on PATH or in ~/.local/bin.' }
 
@@ -140,7 +145,7 @@ class LiveSessionManager extends EventEmitter {
 
     let child: ClaudeLiveSession
     try {
-      child = ClaudeLiveSession.start(this.claudePath, workingDirectory, { permissionMode, resumeSessionId: sessionId, model })
+      child = ClaudeLiveSession.start(this.claudePath, workingDirectory, { permissionMode, resumeSessionId: sessionId, model, effort })
     } catch (err) {
       return { success: false, error: `Failed to launch: ${(err as Error).message}` }
     }
@@ -152,6 +157,7 @@ class LiveSessionManager extends EventEmitter {
       workingDirectory,
       permissionMode,
       model,
+      effort,
       entries: priorEntries,
       firstUserMessageText: null,
       pendingTurnCount: 0,
@@ -239,6 +245,28 @@ class LiveSessionManager extends EventEmitter {
     }
   }
 
+  async setEffort(key: string, level: string): Promise<void> {
+    const live = this.findByKey(key)
+    if (!live || live.hasExited || live.effort === level) return
+
+    // /effort is a real (zero-cost) turn on the wire, so it must be counted like one — its
+    // `result` arrives through the normal turnCompleted path and decrements pendingTurnCount.
+    // Without this bump a concurrent real turn's count would be decremented by /effort's result.
+    const previous = live.effort
+    live.effort = level
+    live.pendingTurnCount++
+    this.emitConversationChanged(live)
+
+    try {
+      await live.process.setEffort(level)
+    } catch (err) {
+      live.effort = previous
+      if (live.pendingTurnCount > 0) live.pendingTurnCount--
+      this.emitConversationChanged(live)
+      throw err
+    }
+  }
+
   snapshot(key: string): LiveConversationState | null {
     const live = this.findByKey(key)
     return live ? this.toConversationState(live) : null
@@ -252,6 +280,7 @@ class LiveSessionManager extends EventEmitter {
       workingDirectory: live.workingDirectory,
       permissionMode: live.permissionMode,
       model: live.model,
+      effort: live.effort,
       entries: mergeToolResults(live.entries),
       pendingTurnCount: live.pendingTurnCount,
       isBusy: live.pendingTurnCount > 0,

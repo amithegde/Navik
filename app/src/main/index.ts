@@ -4,7 +4,7 @@ import path from 'node:path'
 import { createMainWindow } from './main-window'
 import { IpcChannels } from '../shared/ipc-channels'
 import { sessionsState } from './sessions-state'
-import { liveSessionManager, defaultModelValue, defaultPermissionMode } from './live-sessions'
+import { liveSessionManager, defaultModelValue, defaultPermissionMode, defaultEffortValue } from './live-sessions'
 import { claudeModelCatalog, defaultModel } from './claude-model-catalog'
 import { readTranscript } from './session-transcript-reader'
 import { mergeToolResults } from './transcript-entry-merger'
@@ -84,19 +84,20 @@ function registerProjectsIpc(): void {
 function registerLiveSessionIpc(): void {
   ipcMain.handle(
     IpcChannels.liveStartNew,
-    (_event, request: { projectPath: string; permissionMode?: string; model?: string }) =>
-      sessionsState.startNewSessionInProject(request.projectPath, request.permissionMode, request.model)
+    (_event, request: { projectPath: string; permissionMode?: string; model?: string; effort?: string }) =>
+      sessionsState.startNewSessionInProject(request.projectPath, request.permissionMode, request.model, request.effort ?? defaultEffortValue)
   )
 
   ipcMain.handle(
     IpcChannels.liveResume,
-    (_event, request: { sessionId: string; projectPath: string; transcriptPath: string; permissionMode?: string; model?: string }) =>
+    (_event, request: { sessionId: string; projectPath: string; transcriptPath: string; permissionMode?: string; model?: string; effort?: string }) =>
       sessionsState.resumeSession(
         request.sessionId,
         request.projectPath,
         request.transcriptPath,
         request.permissionMode ?? defaultPermissionMode,
-        request.model ?? defaultModelValue
+        request.model ?? defaultModelValue,
+        request.effort ?? defaultEffortValue
       )
   )
 
@@ -112,6 +113,10 @@ function registerLiveSessionIpc(): void {
 
   ipcMain.handle(IpcChannels.liveSetPermissionMode, (_event, request: { key: string; mode: string }) =>
     sessionsState.setLivePermissionMode(request.key, request.mode)
+  )
+
+  ipcMain.handle(IpcChannels.liveSetEffort, (_event, request: { key: string; level: string }) =>
+    sessionsState.setLiveEffort(request.key, request.level)
   )
 
   ipcMain.handle(IpcChannels.liveGetState, (_event, key: string) => liveSessionManager.snapshot(key))

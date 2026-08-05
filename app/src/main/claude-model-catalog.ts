@@ -183,7 +183,12 @@ export function tryParseModels(line: string, requestId: string): ClaudeModelOpti
     const displayName = typeof record.displayName === 'string' && record.displayName.length > 0 ? record.displayName : value
     const description = typeof record.description === 'string' ? record.description : undefined
 
-    result.push({ value, displayName, description })
+    const supportsEffort = record.supportsEffort === true
+    const supportedEffortLevels = Array.isArray(record.supportedEffortLevels)
+      ? record.supportedEffortLevels.filter((l): l is string => typeof l === 'string' && l.length > 0)
+      : undefined
+
+    result.push({ value, displayName, description, supportsEffort: supportsEffort || undefined, supportedEffortLevels })
   }
 
   return result

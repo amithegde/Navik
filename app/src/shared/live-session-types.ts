@@ -10,6 +10,9 @@ export interface LiveConversationState {
   workingDirectory: string
   permissionMode: string
   model: string
+  /** Current effort level for this session — '' means "Auto" (no --effort flag passed at launch,
+   * and no /effort sent live), i.e. whatever the model's own default effort is. */
+  effort: string
   /** Already merged (tool_use paired with its tool_result) — ready to render. */
   entries: TranscriptEntry[]
   pendingTurnCount: number

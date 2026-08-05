@@ -1,5 +1,5 @@
 import { createEffect, createMemo, For, onCleanup, onMount, Show } from 'solid-js'
-import type { ClaudeCommandOption } from '@shared/transcript-types'
+import type { ClaudeCommandOption, ClaudeModelOption } from '@shared/transcript-types'
 import {
   commandMenuIndex,
   commandMenuOpen,
@@ -16,10 +16,12 @@ import { availableCommands, availableModels } from '../state/catalog-store'
 import {
   isLive,
   liveState,
+  paneEffort,
   paneModel,
   panePermissionMode,
   resumingSessionId,
   sendDraft,
+  setCurrentEffort,
   setCurrentModel,
   setCurrentPermissionMode,
   stopCurrentSession
@@ -27,6 +29,7 @@ import {
 import { selectedSession } from '../state/sessions-store'
 import { showToast } from '../state/toast-store'
 import { autosizeTextarea, installComposerAutosizeWidthObserver } from '../lib/composer-autosize'
+import EffortPicker from './EffortPicker'
 import ModelPicker from './ModelPicker'
 import PermissionModePicker from './PermissionModePicker'
 
@@ -55,6 +58,19 @@ export default function Composer() {
   const isBusy = (): boolean => isLive() && liveState()!.isBusy
   const currentModel = (): string => (isLive() ? liveState()!.model : paneModel())
   const currentPermissionMode = (): string => (isLive() ? liveState()!.permissionMode : panePermissionMode())
+  const currentEffort = (): string => (isLive() ? liveState()!.effort : paneEffort())
+  // Resolves the catalog entry for the active model — the "default" entry carries the effort
+  // capability too, so this works even before the user picks a specific model.
+  const currentModelOption = (): ClaudeModelOption | undefined => {
+    const value = currentModel()
+    const all = availableModels()
+    return all.find((m) => m.value === value) ?? all.find((m) => m.value === 'default')
+  }
+  const effortLevels = (): string[] => currentModelOption()?.supportedEffortLevels ?? []
+  const effortSupported = (): boolean => {
+    const opt = currentModelOption()
+    return !!opt?.supportsEffort && effortLevels().length > 0
+  }
   const canStop = (): boolean => isLive() || !!selectedSession()?.running
 
   // Stopping a session this app drives ends a conversation that's right here in the composer;
@@ -126,7 +142,7 @@ export default function Composer() {
     setCommandMenuOpen(false)
     resizeNow()
 
-    const result = await sendDraft(text, images.length > 0 ? images : undefined, panePermissionMode(), paneModel())
+    const result = await sendDraft(text, images.length > 0 ? images : undefined, panePermissionMode(), paneModel(), paneEffort())
 
     if (!result.success) {
       if (selectedSession()?.sessionId === session.sessionId) {
@@ -333,6 +349,9 @@ export default function Composer() {
           </button>
           <PermissionModePicker value={currentPermissionMode()} disabled={isResuming()} onChange={(m) => void setCurrentPermissionMode(m)} />
           <ModelPicker value={currentModel()} options={availableModels()} disabled={isResuming()} onChange={(m) => void setCurrentModel(m)} />
+          <Show when={effortSupported()}>
+            <EffortPicker value={currentEffort()} levels={effortLevels()} disabled={isResuming()} onChange={(level) => void setCurrentEffort(level)} />
+          </Show>
           <div class="composer-toolbar-spacer" />
           <Show when={canStop()}>
             <button type="button" class="composer-icon-btn danger" title={stopButtonTitle()} onClick={() => void handleStop()}>

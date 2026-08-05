@@ -49,6 +49,10 @@ export interface ClaudeModelOption {
   value: string
   displayName: string
   description?: string
+  /** Whether this model accepts an effort level at all (e.g. haiku reports none). */
+  supportsEffort?: boolean
+  /** Effort levels the model accepts, straight from the CLI's initialize payload. */
+  supportedEffortLevels?: string[]
 }
 
 export interface ClaudeCommandOption {

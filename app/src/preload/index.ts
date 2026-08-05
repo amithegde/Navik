@@ -39,21 +39,23 @@ const projects = {
 }
 
 const live = {
-  startNew: (projectPath: string, permissionMode?: string, model?: string): Promise<StartLiveSessionResult> =>
-    ipcRenderer.invoke(IpcChannels.liveStartNew, { projectPath, permissionMode, model }),
+  startNew: (projectPath: string, permissionMode?: string, model?: string, effort?: string): Promise<StartLiveSessionResult> =>
+    ipcRenderer.invoke(IpcChannels.liveStartNew, { projectPath, permissionMode, model, effort }),
   resume: (
     sessionId: string,
     projectPath: string,
     transcriptPath: string,
     permissionMode?: string,
-    model?: string
+    model?: string,
+    effort?: string
   ): Promise<ResumeLiveSessionResult> =>
-    ipcRenderer.invoke(IpcChannels.liveResume, { sessionId, projectPath, transcriptPath, permissionMode, model }),
+    ipcRenderer.invoke(IpcChannels.liveResume, { sessionId, projectPath, transcriptPath, permissionMode, model, effort }),
   sendMessage: (key: string, text: string, images?: ImageAttachment[]): Promise<void> =>
     ipcRenderer.invoke(IpcChannels.liveSendMessage, { key, text, images }),
   setModel: (key: string, model: string): Promise<void> => ipcRenderer.invoke(IpcChannels.liveSetModel, { key, model }),
   setPermissionMode: (key: string, mode: string): Promise<void> =>
     ipcRenderer.invoke(IpcChannels.liveSetPermissionMode, { key, mode }),
+  setEffort: (key: string, level: string): Promise<void> => ipcRenderer.invoke(IpcChannels.liveSetEffort, { key, level }),
   getState: (key: string): Promise<LiveConversationState | null> => ipcRenderer.invoke(IpcChannels.liveGetState, key),
   onConversationChanged: (callback: (state: LiveConversationState) => void): (() => void) => {
     const listener = (_event: Electron.IpcRendererEvent, state: LiveConversationState): void => callback(state)

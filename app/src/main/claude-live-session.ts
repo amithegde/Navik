@@ -19,6 +19,7 @@ export interface ClaudeLiveSessionOptions {
   permissionMode?: string
   resumeSessionId?: string
   model?: string
+  effort?: string
 }
 
 interface PendingControlRequest {
@@ -76,6 +77,12 @@ export class ClaudeLiveSession extends EventEmitter {
     // nothing.
     if (options.model && options.model !== defaultModelValue) {
       args.push('--model', options.model)
+    }
+
+    // An empty/absent effort means "Auto" — let the model use its own default effort, which is
+    // what the CLI does with no --effort flag.
+    if (options.effort && options.effort.trim()) {
+      args.push('--effort', options.effort.trim())
     }
 
     if (options.resumeSessionId) {
@@ -160,6 +167,24 @@ export class ClaudeLiveSession extends EventEmitter {
   async setPermissionMode(mode: string): Promise<void> {
     if (!mode.trim()) return
     await this.sendControlRequest('navik-set-mode', { subtype: 'set_permission_mode', mode })
+  }
+
+  /**
+   * Changes effort for the running session. Unlike setModel/setPermissionMode there is no
+   * `set_effort` control subtype — the CLI exposes this as the `/effort` slash command instead
+   * (verified: it answers with a zero-cost `result`, "Set effort level to … (this session only)").
+   * So this writes one user-turn line; the normal `result`/turnCompleted path accounts for it,
+   * which is why the caller bumps pendingTurnCount alongside this call.
+   */
+  async setEffort(level: string): Promise<void> {
+    const trimmed = level.trim()
+    if (!trimmed) return
+    const payload = JSON.stringify({
+      type: 'user',
+      message: { role: 'user', content: [{ type: 'text', text: `/effort ${trimmed}` }] }
+    })
+    this.state = 'busy'
+    this.writeLine(payload)
   }
 
   private async sendControlRequest(prefix: string, request: JsonRecord): Promise<void> {

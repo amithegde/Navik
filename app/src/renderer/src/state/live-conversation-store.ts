@@ -17,6 +17,8 @@ const [resumingSessionId, setResumingSessionId] = createSignal<string | null>(nu
 // per-session composer state.
 export const [paneModel, setPaneModel] = createSignal('default')
 export const [panePermissionMode, setPanePermissionMode] = createSignal('auto')
+// '' = Auto: no --effort flag at launch, the model uses its own default effort.
+export const [paneEffort, setPaneEffort] = createSignal('')
 
 let loadedSessionId: string | null = null
 let externalPollTimer: ReturnType<typeof setInterval> | null = null
@@ -112,7 +114,8 @@ export async function sendDraft(
   text: string,
   images: ImageAttachment[] | undefined,
   permissionMode: string,
-  model: string
+  model: string,
+  effort: string
 ): Promise<{ success: boolean; error?: string; wasRunningElsewhere?: boolean }> {
   const session = selectedSession()
   if (!session) return { success: false }
@@ -127,7 +130,7 @@ export async function sendDraft(
     wasRunningElsewhere = !!session.running
     setResumingSessionId(session.sessionId)
     try {
-      const result = await window.navik.live.resume(session.sessionId, session.projectPath, session.transcriptPath, permissionMode, model)
+      const result = await window.navik.live.resume(session.sessionId, session.projectPath, session.transcriptPath, permissionMode, model, effort)
       if (!result.success) return { success: false, error: result.error ?? 'Failed to start.' }
 
       const freshState = await window.navik.live.getState(session.sessionId)
@@ -162,6 +165,16 @@ export async function setCurrentModel(model: string): Promise<void> {
 export async function setCurrentPermissionMode(mode: string): Promise<void> {
   setPanePermissionMode(mode)
   if (isLive()) await window.navik.live.setPermissionMode(liveState()!.key, mode)
+}
+
+/** Same shape as the model/permission setters: track the pick locally, and push to the live
+ * process if one is up. /effort has no control-request form, so the live push is the slash
+ * command — the CLI acknowledges it as a zero-cost turn, and any rejection surfaces there rather
+ * than as a thrown promise here (the picker only offers levels the model supports, so a reject
+ * isn't reachable from the UI). */
+export async function setCurrentEffort(level: string): Promise<void> {
+  setPaneEffort(level)
+  if (isLive()) await window.navik.live.setEffort(liveState()!.key, level)
 }
 
 /** Launches a new session directly in the given project — model and permission mode are left
