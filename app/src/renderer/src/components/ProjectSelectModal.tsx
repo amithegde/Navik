@@ -1,4 +1,4 @@
-import { createEffect, createSignal, For, Show } from 'solid-js'
+import { createEffect, createSignal, For, onCleanup, Show } from 'solid-js'
 import { projects, setProjectFilter } from '../state/sessions-store'
 import { startNewSessionInProject } from '../state/live-conversation-store'
 import { closeProjectSelectModal, projectSelectModalOpen } from '../state/project-select-store'
@@ -6,13 +6,48 @@ import { closeProjectSelectModal, projectSelectModalOpen } from '../state/projec
 export default function ProjectSelectModal() {
   let frameRef: HTMLDivElement | undefined
   let inputRef: HTMLInputElement | undefined
+  let rowRefs: (HTMLButtonElement | undefined)[] = []
   const [pathInput, setPathInput] = createSignal('')
+  // Logical keyboard cursor over a single ring: 0..N-1 select a known project, N lands focus on
+  // the new-path input. Up/Down wrap end-to-end, so holding either arrow eventually cycles the
+  // input into focus and back — same loop the quick model/effort switcher uses.
+  const [cursor, setCursor] = createSignal(0)
+
+  const textBoxPos = (): number => projects().length
 
   createEffect(() => {
-    if (projectSelectModalOpen()) {
-      setPathInput('')
-      frameRef?.focus()
+    if (!projectSelectModalOpen()) return
+    setPathInput('')
+    setCursor(0)
+    // Defer past the Solid flush: this effect can run before the <Show> that mounts the frame has
+    // committed its DOM, in which case frameRef/inputRef are still undefined and a synchronous
+    // focus() is a no-op — leaving focus on whatever opened the modal, so arrow keys never reach
+    // the frame's onKeyDown. The microtask lands after the frame is mounted.
+    queueMicrotask(() => {
+      if (projectSelectModalOpen()) focusCursor()
+    })
+  })
+
+  // While open, keep DOM focus inside the modal so arrow keys always reach the frame's handler —
+  // if focus escaped to the composer textarea, keystrokes would type into the draft instead.
+  createEffect(() => {
+    if (!projectSelectModalOpen()) return
+    const reclaim = (e: FocusEvent): void => {
+      const frame = frameRef
+      if (!frame) return
+      const target = e.target as HTMLElement | null
+      if (target && !frame.contains(target)) frame.focus()
     }
+    document.addEventListener('focusin', reclaim, true)
+    onCleanup(() => document.removeEventListener('focusin', reclaim, true))
+  })
+
+  // Keep the highlighted row scrolled into view as the cursor moves.
+  createEffect(() => {
+    const c = cursor()
+    queueMicrotask(() => {
+      if (c < textBoxPos()) rowRefs[c]?.scrollIntoView({ block: 'nearest' })
+    })
   })
 
   // Known projects use their canonical, already-discovered path, so filtering the sidebar to it
@@ -32,8 +67,41 @@ export default function ProjectSelectModal() {
     closeProjectSelectModal()
   }
 
-  const onKeyDown = (e: KeyboardEvent): void => {
-    if (e.key === 'Escape') closeProjectSelectModal()
+  function focusCursor(): void {
+    if (cursor() === textBoxPos()) inputRef?.focus()
+    else frameRef?.focus()
+  }
+
+  function move(delta: number): void {
+    const n = textBoxPos() + 1
+    if (n <= 1) return
+    setCursor((c) => (c + delta + n) % n)
+    focusCursor()
+  }
+
+  function onKeyDown(e: KeyboardEvent): void {
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault()
+        move(1)
+        break
+      case 'ArrowUp':
+        e.preventDefault()
+        move(-1)
+        break
+      case 'Enter': {
+        e.preventDefault()
+        const c = cursor()
+        const list = projects()
+        if (c < list.length) startKnownProject(list[c].path)
+        else startNewProject(pathInput())
+        break
+      }
+      case 'Escape':
+        e.preventDefault()
+        closeProjectSelectModal()
+        break
+    }
   }
 
   const onSubmit = (e: SubmitEvent): void => {
@@ -43,10 +111,11 @@ export default function ProjectSelectModal() {
 
   // Refocuses the text input after picking so a follow-up Enter submits the form — the browse
   // button is left focused after its own click, and Enter on a focused type="button" re-triggers
-  // that button rather than the form's submit.
+  // that button rather than the form's submit. Keep the cursor in sync with where focus lands.
   const browse = async (): Promise<void> => {
     const picked = await window.navik.projects.pickFolder()
     if (picked) setPathInput(picked)
+    setCursor(textBoxPos())
     inputRef?.focus()
   }
 
@@ -66,8 +135,16 @@ export default function ProjectSelectModal() {
         <Show when={projects().length > 0}>
           <div class="project-select-list">
             <For each={projects()}>
-              {(project) => (
-                <button type="button" class="project-select-row" title={project.path} onClick={() => startKnownProject(project.path)}>
+              {(project, i) => (
+                <button
+                  type="button"
+                  tabindex="-1"
+                  class="project-select-row"
+                  classList={{ active: i() === cursor() }}
+                  title={project.path}
+                  ref={(el) => (rowRefs[i()] = el)}
+                  onClick={() => startKnownProject(project.path)}
+                >
                   <span class="project-select-row-name">{project.displayName}</span>
                   <span class="chip-count">{project.sessionCount}</span>
                 </button>
@@ -89,6 +166,7 @@ export default function ProjectSelectModal() {
               placeholder="Directory path…"
               value={pathInput()}
               onInput={(e) => setPathInput(e.currentTarget.value)}
+              onFocus={() => setCursor(textBoxPos())}
             />
             <button type="button" class="icon-btn" title="Browse for a folder" onClick={() => void browse()}>
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
