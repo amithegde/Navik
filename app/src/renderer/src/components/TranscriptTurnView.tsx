@@ -99,7 +99,7 @@ function OrphanResultCard(props: { result: ToolResultSummary; onExpandText: (r: 
   )
 }
 
-export default function TranscriptTurnView(props: { entry: TranscriptEntry; isLast: boolean; onExpandText: (r: TextViewerRequest) => void }) {
+export default function TranscriptTurnView(props: { entry: TranscriptEntry; isLast: boolean; onExpandText: (r: TextViewerRequest) => void; onCopyText: (text: string) => void }) {
   return (
     <div class="transcript-turn" classList={{ user: props.entry.role === 'user', assistant: props.entry.role === 'assistant', last: props.isLast }}>
       <div class="turn-rail">
@@ -145,6 +145,23 @@ export default function TranscriptTurnView(props: { entry: TranscriptEntry; isLa
         </Show>
 
         <For each={props.entry.toolResults}>{(result) => <OrphanResultCard result={result} onExpandText={props.onExpandText} />}</For>
+
+        <Show when={props.entry.role === 'assistant' && props.entry.textBlocks.length > 0}>
+          <div class="turn-actions">
+            <button
+              type="button"
+              class="turn-copy-btn"
+              title="Copy response"
+              onClick={() => props.onCopyText(props.entry.textBlocks.join('\n\n'))}
+            >
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                <rect x="5.5" y="5.5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3" />
+                <path d="M3.5 10.5h-1a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.3" />
+              </svg>
+              <span>Copy</span>
+            </button>
+          </div>
+        </Show>
       </div>
     </div>
   )

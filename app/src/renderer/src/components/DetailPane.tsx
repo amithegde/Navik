@@ -305,7 +305,7 @@ export default function DetailPane() {
                       >
                         <For each={displayEntries()!}>
                           {(entry, i) => (
-                            <TranscriptTurnView entry={entry} isLast={i() === displayEntries()!.length - 1} onExpandText={setFullTextView} />
+                            <TranscriptTurnView entry={entry} isLast={i() === displayEntries()!.length - 1} onExpandText={setFullTextView} onCopyText={(text) => copy(text, 'Response copied.')} />
                           )}
                         </For>
                       </Show>
@@ -316,7 +316,7 @@ export default function DetailPane() {
                     <>
                       <For each={live().entries}>
                         {(entry, i) => (
-                          <TranscriptTurnView entry={entry} isLast={i() === live().entries.length - 1 && !live().isBusy} onExpandText={setFullTextView} />
+                          <TranscriptTurnView entry={entry} isLast={i() === live().entries.length - 1 && !live().isBusy} onExpandText={setFullTextView} onCopyText={(text) => copy(text, 'Response copied.')} />
                         )}
                       </For>
                       <Show when={live().isBusy}>
