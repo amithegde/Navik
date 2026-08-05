@@ -69,9 +69,15 @@ export default function DetailPane() {
     }
   })
 
+  // Tracks `isLoadingTranscript` too: the transcript entries and the loading flag are set in
+  // separate reactive cycles (post-await code isn't batched), so `displayEntries()` updates while
+  // the `<For>` is still hidden behind the loading-spinner `<Show>`. Without tracking the flag,
+  // the one `notifyContentChanged` that runs with the entries actually mounted never fires, and
+  // the view stays parked at the top of the loading-spinner area when an existing session opens.
   createEffect(() => {
     displayEntries()
     liveState()?.isBusy
+    isLoadingTranscript()
     scrollController.notifyContentChanged()
   })
 
