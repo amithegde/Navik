@@ -4,11 +4,13 @@ import Sidebar from './components/Sidebar'
 import DetailPane from './components/DetailPane'
 import KeyboardShortcutsModal from './components/KeyboardShortcutsModal'
 import ProjectSelectModal from './components/ProjectSelectModal'
+import SettingsModal from './components/SettingsModal'
 import { initSessionsStore, refreshSessions } from './state/sessions-store'
 import { initLiveConversationStore, startNewSessionInCurrentProject } from './state/live-conversation-store'
 import { initComposerStore } from './state/composer-store'
 import { initCatalogStore } from './state/catalog-store'
 import { initEditorStore } from './state/editor-store'
+import { initSettingsStore } from './state/settings-store'
 import { isZenMode } from './state/layout-store'
 import { toastIsError, toastMessage } from './state/toast-store'
 import { installSearchShortcut } from './lib/search-shortcut'
@@ -27,6 +29,7 @@ export default function App() {
     initComposerStore()
     initCatalogStore()
     initEditorStore()
+    initSettingsStore()
     void refreshSessions()
 
     const uninstallSearchShortcut = installSearchShortcut()
@@ -67,6 +70,7 @@ export default function App() {
       )}
       <KeyboardShortcutsModal isOpen={shortcutsOpen()} onClose={() => setShortcutsOpen(false)} />
       <ProjectSelectModal />
+      <SettingsModal />
     </div>
   )
 }

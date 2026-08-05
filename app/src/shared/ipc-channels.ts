@@ -27,5 +27,8 @@ export const IpcChannels = {
   catalogGetCommands: 'catalog:get-commands',
 
   editorsGetAvailable: 'editors:get-available',
-  editorsOpen: 'editors:open'
+  editorsOpen: 'editors:open',
+
+  settingsGet: 'settings:get',
+  settingsSet: 'settings:set'
 } as const

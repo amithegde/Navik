@@ -13,6 +13,7 @@ import {
   setSearchText
 } from '../state/sessions-store'
 import { startNewSessionInCurrentProject } from '../state/live-conversation-store'
+import { openSettingsModal } from '../state/settings-store'
 import { formatRelativeTime } from '../lib/relative-time'
 import { ordinalIgnoreCaseCompare } from '@shared/text'
 
@@ -116,6 +117,17 @@ export default function Sidebar() {
         <button class="icon-btn icon-btn-lg" title="New session (Ctrl+N)" onClick={startNewSessionInCurrentProject}>
           <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
             <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+          </svg>
+        </button>
+        <button class="icon-btn icon-btn-lg" title="Settings" onClick={openSettingsModal}>
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="8" r="2.6" stroke="currentColor" stroke-width="1.4" />
+            <path
+              d="M8 1.5v2M8 12.5v2M14.5 8h-2M3.5 8h-2M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4M12.6 12.6l-1.4-1.4M4.8 4.8L3.4 3.4"
+              stroke="currentColor"
+              stroke-width="1.4"
+              stroke-linecap="round"
+            />
           </svg>
         </button>
       </div>

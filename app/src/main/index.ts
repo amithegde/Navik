@@ -10,9 +10,12 @@ import { readTranscript } from './session-transcript-reader'
 import { mergeToolResults } from './transcript-entry-merger'
 import { tryLaunchExternal } from './claude-launcher'
 import { editorState } from './editor-state'
+import { loadAppSettings, saveAppSettings } from './app-settings-store'
+import { setAwakeBlocking } from './awake-blocker'
 import type { ImageAttachment } from '../shared/transcript-types'
 import type { LiveSessionRowUpdate } from '../shared/live-session-types'
 import type { EditorKind } from '../shared/editor-types'
+import type { AppSettings } from '../shared/app-settings'
 
 function registerWindowControlIpc(): void {
   ipcMain.on(IpcChannels.windowMinimize, (event) => {
@@ -145,6 +148,18 @@ function registerEditorsIpc(): void {
   )
 }
 
+function registerSettingsIpc(): void {
+  ipcMain.handle(IpcChannels.settingsGet, () => loadAppSettings())
+
+  ipcMain.handle(IpcChannels.settingsSet, async (_event, patch: Partial<AppSettings>) => {
+    const current = await loadAppSettings()
+    const updated: AppSettings = { ...current, ...patch }
+    await saveAppSettings(updated)
+    if ('keepAwake' in patch) setAwakeBlocking(updated.keepAwake)
+    return updated
+  })
+}
+
 app.whenReady().then(async () => {
   registerWindowControlIpc()
   registerSessionsIpc()
@@ -152,8 +167,11 @@ app.whenReady().then(async () => {
   registerLiveSessionIpc()
   registerModelCatalogIpc()
   registerEditorsIpc()
+  registerSettingsIpc()
   void editorState.init()
   await sessionsState.init()
+  const initialSettings = await loadAppSettings()
+  setAwakeBlocking(initialSettings.keepAwake)
   await createMainWindow()
 
   app.on('activate', () => {

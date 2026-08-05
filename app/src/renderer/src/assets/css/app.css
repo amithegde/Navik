@@ -1091,6 +1091,76 @@ body.resizing-panes * { cursor: col-resize !important; }
 .project-select-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
 .project-select-input::placeholder { color: var(--text-muted); }
 
+/* Settings dialog, opened from the gear button in the sidebar toolbar */
+.settings-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 199;
+}
+.settings-modal {
+    position: fixed;
+    top: 14vh;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    width: min(440px, 88vw);
+    max-height: 78vh;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lift);
+    z-index: 200;
+    overflow: hidden;
+}
+.settings-modal:focus { outline: none; }
+.settings-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 10px 10px 14px;
+    border-bottom: 1px solid var(--border-subtle);
+    flex-shrink: 0;
+}
+.settings-title { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.settings-body { padding: 6px 14px 16px; }
+.settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 0;
+}
+.settings-row-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.settings-row-label { font-size: 13px; color: var(--text-primary); }
+.settings-row-desc { font-size: 11.5px; color: var(--text-muted); line-height: 1.4; }
+.settings-switch {
+    flex-shrink: 0;
+    position: relative;
+    width: 38px;
+    height: 22px;
+    padding: 0;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border-default);
+    background: var(--bg-input);
+    cursor: pointer;
+    transition: background 120ms ease, border-color 120ms ease;
+}
+.settings-switch.on { background: var(--accent); border-color: var(--accent); }
+.settings-switch-knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--text-secondary);
+    transition: transform 120ms ease, background 120ms ease;
+}
+.settings-switch.on .settings-switch-knob { transform: translateX(16px); background: #fff; }
+
 .thinking-indicator {
     display: flex;
     align-items: center;
