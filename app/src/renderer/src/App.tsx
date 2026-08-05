@@ -16,6 +16,7 @@ import { isZenMode } from './state/layout-store'
 import { toastIsError, toastMessage } from './state/toast-store'
 import { installSearchShortcut } from './lib/search-shortcut'
 import { installNewSessionShortcut } from './lib/new-session-shortcut'
+import { installNavShortcut } from './lib/nav-shortcut'
 import { installScrollbarHover } from './lib/scrollbar-hover'
 import { installPaneResizer } from './lib/pane-resizer'
 import { installZenModeEscapeHatch } from './lib/zen-mode-shortcut'
@@ -36,6 +37,7 @@ export default function App() {
 
     const uninstallSearchShortcut = installSearchShortcut()
     const uninstallNewSessionShortcut = installNewSessionShortcut(startNewSessionInCurrentProject)
+    const uninstallNavShortcut = installNavShortcut()
     const uninstallScrollbarHover = installScrollbarHover()
     const uninstallPaneResizer = resizerRef ? installPaneResizer(resizerRef) : undefined
     const uninstallZenModeEscapeHatch = installZenModeEscapeHatch()
@@ -45,6 +47,7 @@ export default function App() {
       unsubscribeLive()
       uninstallSearchShortcut()
       uninstallNewSessionShortcut()
+      uninstallNavShortcut()
       uninstallScrollbarHover()
       uninstallPaneResizer?.()
       uninstallZenModeEscapeHatch()

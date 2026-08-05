@@ -1,5 +1,5 @@
 import { createEffect, createSignal, For, onCleanup, onMount, Show } from 'solid-js'
-import { isPinned, selectedSession, togglePinned } from '../state/sessions-store'
+import { isPinned, selectedSession, togglePinned, goBack, goHome, canGoBack } from '../state/sessions-store'
 import { displayEntries, isLoadingTranscript, liveState } from '../state/live-conversation-store'
 import { showToast } from '../state/toast-store'
 import { formatRelativeTime } from '../lib/relative-time'
@@ -181,6 +181,39 @@ export default function DetailPane() {
               </div>
 
               <div class="transcript-toolbar">
+                <button
+                  type="button"
+                  class="transcript-tool-btn"
+                  title="Go back (previous page)"
+                  disabled={!canGoBack()}
+                  onClick={goBack}
+                >
+                  <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+                    <path
+                      d="M10 3L4 8l6 5"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  class="transcript-tool-btn"
+                  title="Home"
+                  onClick={goHome}
+                >
+                  <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+                    <path
+                      d="M2 7.5L8 2.5l6 5M3.5 6.5V13a.5.5 0 0 0 .5.5h3v-4h2v4h3a.5.5 0 0 0 .5-.5V6.5"
+                      stroke="currentColor"
+                      stroke-width="1.4"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </button>
                 <div class="transcript-toolbar-spacer" />
                 <div class="toolbar-session-actions">
                   <button
