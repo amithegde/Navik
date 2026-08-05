@@ -27,9 +27,16 @@ function byTitle(a: ClaudeSession, b: ClaudeSession): number {
   return ordinalIgnoreCaseCompare(a.title, b.title)
 }
 
-// Sessions still land in these buckets (running / today / yesterday / older), but within each
-// bucket they sort by title rather than last-activity — sorting by time made rows constantly
-// swap places as any session so much as ticked, which made the list unusable to scan.
+// Most-recent-first by last-activity. Safe for non-running sessions — they don't tick, so the
+// order is stable. Running sessions are intentionally excluded from this sort (see below).
+function byRecentActivity(a: ClaudeSession, b: ClaudeSession): number {
+  return b.lastActivityUtc.localeCompare(a.lastActivityUtc)
+}
+
+// Running sessions sort by title rather than last-activity — a running session's
+// last-activity ticks on every event, so time-sorting them would constantly swap rows and make
+// the list unusable to scan. Non-running sessions don't tick, so their date buckets safely sort
+// by most-recent-activity (the intuitive "what was I just doing?" order).
 function buildGroups(sessions: ClaudeSession[]): SessionGroup[] {
   const running = sessions.filter((s) => s.running).sort(byTitle)
   const rest = sessions.filter((s) => !s.running)
@@ -49,7 +56,7 @@ function buildGroups(sessions: ClaudeSession[]): SessionGroup[] {
   }
 
   const addDateGroup = (label: string, items: ClaudeSession[]): void => {
-    if (items.length > 0) groups.push({ label, isLive: false, items: [...items].sort(byTitle) })
+    if (items.length > 0) groups.push({ label, isLive: false, items: [...items].sort(byRecentActivity) })
   }
 
   addDateGroup(
