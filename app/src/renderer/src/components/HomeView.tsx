@@ -1,6 +1,7 @@
 import { createMemo, For, Show } from 'solid-js'
 import { isLoading, pinnedSessions, projects, sessions } from '../state/sessions-store'
 import HomeSessionCard from './HomeSessionCard'
+import UsagePanel from './UsagePanel'
 
 export default function HomeView() {
   const runningCount = createMemo(() => sessions().filter((s) => s.running).length)
@@ -18,6 +19,32 @@ export default function HomeView() {
         </div>
       </div>
 
+      <div class="home-top-row">
+        <UsagePanel />
+
+        <Show when={sessions().length > 0}>
+          <div class="home-stats">
+            <div class="home-stat">
+              <div class="home-stat-value">{sessions().length}</div>
+              <div class="home-stat-label">Sessions</div>
+            </div>
+            <div class="home-stat">
+              <div class="home-stat-value">
+                <Show when={runningCount() > 0}>
+                  <span class="live-pulse" />
+                </Show>
+                {runningCount()}
+              </div>
+              <div class="home-stat-label">Running now</div>
+            </div>
+            <div class="home-stat">
+              <div class="home-stat-value">{projects().length}</div>
+              <div class="home-stat-label">Projects</div>
+            </div>
+          </div>
+        </Show>
+      </div>
+
       <Show
         when={sessions().length > 0}
         fallback={
@@ -26,26 +53,6 @@ export default function HomeView() {
           </div>
         }
       >
-        <div class="home-stats">
-          <div class="home-stat">
-            <div class="home-stat-value">{sessions().length}</div>
-            <div class="home-stat-label">Sessions</div>
-          </div>
-          <div class="home-stat">
-            <div class="home-stat-value">
-              <Show when={runningCount() > 0}>
-                <span class="live-pulse" />
-              </Show>
-              {runningCount()}
-            </div>
-            <div class="home-stat-label">Running now</div>
-          </div>
-          <div class="home-stat">
-            <div class="home-stat-value">{projects().length}</div>
-            <div class="home-stat-label">Projects</div>
-          </div>
-        </div>
-
         <div class="home-section">
           <div class="home-section-title">Pinned</div>
           <Show

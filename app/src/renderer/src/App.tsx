@@ -9,6 +9,7 @@ import { initSessionsStore, refreshSessions } from './state/sessions-store'
 import { initLiveConversationStore, startNewSessionInCurrentProject } from './state/live-conversation-store'
 import { initComposerStore } from './state/composer-store'
 import { initCatalogStore } from './state/catalog-store'
+import { initUsageStore } from './state/usage-store'
 import { initEditorStore } from './state/editor-store'
 import { initSettingsStore } from './state/settings-store'
 import { isZenMode } from './state/layout-store'
@@ -28,6 +29,7 @@ export default function App() {
     const unsubscribeLive = initLiveConversationStore()
     initComposerStore()
     initCatalogStore()
+    initUsageStore()
     initEditorStore()
     initSettingsStore()
     void refreshSessions()

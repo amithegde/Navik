@@ -6,6 +6,7 @@ import type { LiveConversationState, StartLiveSessionResult, ResumeLiveSessionRe
 import type { StopOutcome } from '../main/sessions-state'
 import type { EditorAvailability, EditorKind } from '../shared/editor-types'
 import type { AppSettings } from '../shared/app-settings'
+import type { UsageResult } from '../shared/usage-types'
 
 const windowControls = {
   minimize: (): void => ipcRenderer.send(IpcChannels.windowMinimize),
@@ -76,6 +77,10 @@ const catalog = {
     ipcRenderer.invoke(IpcChannels.catalogGetCommands, workingDirectory)
 }
 
+const usage = {
+  get: (): Promise<UsageResult> => ipcRenderer.invoke(IpcChannels.usageGet)
+}
+
 const editors = {
   getAvailable: (): Promise<EditorAvailability> => ipcRenderer.invoke(IpcChannels.editorsGetAvailable),
   open: (editor: EditorKind, folderPath: string): Promise<{ success: boolean; error?: string }> =>
@@ -93,6 +98,7 @@ const navikApi = {
   projects,
   live,
   catalog,
+  usage,
   editors,
   settings
 }

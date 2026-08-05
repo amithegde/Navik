@@ -6,6 +6,7 @@ import { IpcChannels } from '../shared/ipc-channels'
 import { sessionsState } from './sessions-state'
 import { liveSessionManager, defaultModelValue, defaultPermissionMode, defaultEffortValue } from './live-sessions'
 import { claudeModelCatalog, defaultModel } from './claude-model-catalog'
+import { fetchUsage } from './usage-fetcher'
 import { readTranscript } from './session-transcript-reader'
 import { mergeToolResults } from './transcript-entry-merger'
 import { tryLaunchExternal } from './claude-launcher'
@@ -145,6 +146,13 @@ function registerModelCatalogIpc(): void {
   })
 }
 
+function registerUsageIpc(): void {
+  // Always re-fetches live — the CLI/account state can change between calls, and the only cost is a
+  // single short HTTP request. No cache: a stale "you have N% left" would be worse than a fresh
+  // fetch on demand.
+  ipcMain.handle(IpcChannels.usageGet, () => fetchUsage())
+}
+
 function registerEditorsIpc(): void {
   ipcMain.handle(IpcChannels.editorsGetAvailable, () => editorState.getAvailability())
 
@@ -171,6 +179,7 @@ app.whenReady().then(async () => {
   registerProjectsIpc()
   registerLiveSessionIpc()
   registerModelCatalogIpc()
+  registerUsageIpc()
   registerEditorsIpc()
   registerSettingsIpc()
   void editorState.init()
