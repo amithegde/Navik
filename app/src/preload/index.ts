@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron'
+import { contextBridge, ipcRenderer, webFrame } from 'electron'
 import { IpcChannels } from '../shared/ipc-channels'
 import type { SessionsSnapshot } from '../shared/session-types'
 import type { TranscriptEntry, ImageAttachment, ClaudeModelOption, ClaudeCommandOption } from '../shared/transcript-types'
@@ -92,6 +92,13 @@ const settings = {
   set: (patch: Partial<AppSettings>): Promise<AppSettings> => ipcRenderer.invoke(IpcChannels.settingsSet, patch)
 }
 
+const zoom = {
+  getFactor: (): number => webFrame.getZoomFactor(),
+  setFactor: (factor: number): void => {
+    webFrame.setZoomFactor(factor)
+  }
+}
+
 const navikApi = {
   windowControls,
   sessions,
@@ -100,7 +107,8 @@ const navikApi = {
   catalog,
   usage,
   editors,
-  settings
+  settings,
+  zoom
 }
 
 contextBridge.exposeInMainWorld('navik', navikApi)

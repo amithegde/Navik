@@ -23,6 +23,7 @@ import { installQuickModelEffortShortcut } from './lib/quick-model-effort-shortc
 import { installScrollbarHover } from './lib/scrollbar-hover'
 import { installPaneResizer } from './lib/pane-resizer'
 import { installZenModeEscapeHatch } from './lib/zen-mode-shortcut'
+import { installZoomShortcut } from './lib/zoom-shortcut'
 
 export default function App() {
   const [shortcutsOpen, setShortcutsOpen] = createSignal(false)
@@ -45,6 +46,7 @@ export default function App() {
     const uninstallScrollbarHover = installScrollbarHover()
     const uninstallPaneResizer = resizerRef ? installPaneResizer(resizerRef) : undefined
     const uninstallZenModeEscapeHatch = installZenModeEscapeHatch()
+    const uninstallZoomShortcut = installZoomShortcut()
 
     onCleanup(() => {
       unsubscribeSessions()
@@ -56,6 +58,7 @@ export default function App() {
       uninstallScrollbarHover()
       uninstallPaneResizer?.()
       uninstallZenModeEscapeHatch()
+      uninstallZoomShortcut()
     })
   })
 
