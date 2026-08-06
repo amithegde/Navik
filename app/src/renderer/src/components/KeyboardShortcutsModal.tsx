@@ -16,6 +16,7 @@ const groups: ShortcutGroup[] = [
     rows: [
       { keys: ['Ctrl', 'N'], desc: 'Start a new session in the current project' },
       { keys: ['Ctrl', 'K'], desc: 'Focus the session search box' },
+      { keys: ['Ctrl', 'F'], desc: 'Find text in the transcript' },
       { keys: ['Ctrl', '/'], desc: 'Focus the message composer' },
       { keys: ['Ctrl', 'M'], desc: 'Quick-switch model and effort' },
       { keys: ['Alt', '←'], desc: 'Go back to the previous page' },
@@ -41,6 +42,16 @@ const groups: ShortcutGroup[] = [
   {
     title: 'Viewers',
     rows: [{ keys: ['Esc'], desc: 'Close the open viewer or dialog' }]
+  },
+  {
+    title: 'Find in transcript (Ctrl+F)',
+    rows: [
+      { keys: ['Enter'], desc: 'Jump to the next match' },
+      { keys: ['Shift', 'Enter'], desc: 'Jump to the previous match' },
+      { keys: ['F3'], desc: 'Next match' },
+      { keys: ['Shift', 'F3'], desc: 'Previous match' },
+      { keys: ['Esc'], desc: 'Close the find bar' }
+    ]
   },
   {
     title: 'Quick switch (Ctrl+M)',

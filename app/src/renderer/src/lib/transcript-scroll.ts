@@ -151,6 +151,15 @@ export class TranscriptScrollController {
     this.smoothScrollTo(this.topOf(target) - stepScrollPaddingPx)
   }
 
+  /** Drop out of auto-follow so a programmatic scroll (e.g. jumping to a find-in-transcript match)
+   * isn't immediately undone by the next `notifyContentChanged` snapping back to the bottom.
+   * Public because the find feature lives outside this module and needs to coordinate with the
+   * same follow flag the scroll buttons use. */
+  pauseFollow(): void {
+    this.follow = false
+    this.intentUntil = 0
+  }
+
   private userTurnElements(): HTMLElement[] {
     if (!this.el) return []
     return Array.from(this.el.querySelectorAll<HTMLElement>('.transcript-turn.user'))

@@ -17,6 +17,7 @@ import { openQuickModelEffort } from './state/quick-model-effort-store'
 import { isZenMode } from './state/layout-store'
 import { toastIsError, toastMessage } from './state/toast-store'
 import { installSearchShortcut } from './lib/search-shortcut'
+import { installFindShortcut } from './lib/find-shortcut'
 import { installNewSessionShortcut } from './lib/new-session-shortcut'
 import { installNavShortcut } from './lib/nav-shortcut'
 import { installQuickModelEffortShortcut } from './lib/quick-model-effort-shortcut'
@@ -41,6 +42,7 @@ export default function App() {
     void refreshSessions()
 
     const uninstallSearchShortcut = installSearchShortcut()
+    const uninstallFindShortcut = installFindShortcut()
     const uninstallNewSessionShortcut = installNewSessionShortcut(startNewSessionInCurrentProject)
     const uninstallNavShortcut = installNavShortcut()
     const uninstallQuickModelEffortShortcut = installQuickModelEffortShortcut(openQuickModelEffort)
@@ -54,6 +56,7 @@ export default function App() {
       unsubscribeSessions()
       unsubscribeLive()
       uninstallSearchShortcut()
+      uninstallFindShortcut()
       uninstallNewSessionShortcut()
       uninstallNavShortcut()
       uninstallQuickModelEffortShortcut()

@@ -256,8 +256,17 @@ export default function Composer() {
   // Composer stays mounted across session switches (DetailPane's <Show> only remounts it when
   // coming back from Home), so a session start/open needs its own effect to (re)focus the
   // textbox — onMount alone only covers the very first session shown.
+  //
+  // MUST gate on the sessionId string, not on selectedSession() itself: that memo returns a
+  // freshly-IPC-cloned object on every background poll tick (same sessionId, new reference), so
+  // reading it raw would re-fire this effect every tick and yank focus back to the composer out
+  // from under the user — visibly breaking in-transcript find (Ctrl+F) mid-type, and any other
+  // input that briefly holds focus. Only an actual session switch (or first open) should focus.
+  let lastFocusedSessionId: string | undefined
   createEffect(() => {
-    selectedSession()?.sessionId
+    const id = selectedSession()?.sessionId
+    if (id === lastFocusedSessionId) return
+    lastFocusedSessionId = id
     textareaRef?.focus()
   })
 

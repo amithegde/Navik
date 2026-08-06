@@ -1,10 +1,26 @@
-import { createEffect, createSignal, For, onCleanup, onMount, Show } from 'solid-js'
+import { createEffect, createSignal, For, onCleanup, onMount, Show, untrack } from 'solid-js'
 import { isPinned, selectedSession, togglePinned, goBack, goHome, canGoBack } from '../state/sessions-store'
 import { displayEntries, isLoadingTranscript, liveState } from '../state/live-conversation-store'
 import { showToast } from '../state/toast-store'
 import { formatRelativeTime } from '../lib/relative-time'
 import { TranscriptScrollController, installTranscriptToolbarScrollButtons } from '../lib/transcript-scroll'
+import { buildSearch, clearHighlights, getMatchElement, highlightMatches, setActiveMatch } from '../lib/transcript-search'
+import {
+  bumpScrollTick,
+  caseSensitive,
+  currentIndex,
+  isSearchOpen,
+  matchCount,
+  openSearch,
+  searchQuery,
+  setMatchCount,
+  setCurrentIndex,
+  setRegexError,
+  useRegex,
+  scrollTick
+} from '../state/search-store'
 import TranscriptTurnView, { type TextViewerRequest } from './TranscriptTurnView'
+import TranscriptSearchBar from './TranscriptSearchBar'
 import Composer from './Composer'
 import TextViewerModal from './TextViewerModal'
 import ImageViewerModal from './ImageViewerModal'
@@ -80,6 +96,118 @@ export default function DetailPane() {
     isLoadingTranscript()
     scrollController.notifyContentChanged()
   })
+
+  // ---- In-transcript find (Ctrl+F) ----
+  // Three coordinated effects over `.transcript-scroll`:
+  //  1. highlight: walks text nodes and wraps matches; updates matchCount/currentIndex. Re-runs on
+  //     every content tick (streamed tokens included) so new output is matched; the active/scroll
+  //     effects pick up the new marks without yanking the user back to match #0 every token.
+  //  2. apply-active: toggles `.active` on the current mark — needs to re-run after every highlight
+  //     pass because the marks are recreated each time.
+  //  3. scroll-into-view: only on explicit navigation (next/prev/Enter/F3) or a query change,
+  //     gated by `scrollTick`, so streamed content updates don't seize the scroll position.
+  //
+  // CRITICAL: every signal read must happen BEFORE the `if (!scrollEl) return` guard. `scrollRef`
+  // is a plain `let` (not a signal), so the only way these effects wake up after the ref binds
+  // (when a session opens and the transcript-scroll element mounts) is by already subscribing to
+  // a content signal like displayEntries(). Returning before any signal read leaves the effect
+  // with zero dependencies and it never runs again — which is why typing into the find box showed
+  // no matches: the highlight pass never fired.
+  let lastQueryKey = ''
+  createEffect(() => {
+    const open = isSearchOpen()
+    const q = searchQuery()
+    const re = useRegex()
+    const cs = caseSensitive()
+    // Subscribe to content signals so streaming/refresh-driven DOM changes re-trigger the walk —
+    // AND so the effect re-runs after `scrollRef` binds on first session open.
+    displayEntries()
+    const live = liveState()
+    live?.entries.length
+    live?.isBusy
+    isLoadingTranscript()
+
+    const scrollEl = scrollRef
+    if (!scrollEl) return
+
+    if (!open) {
+      clearHighlights(scrollEl)
+      setMatchCount(0)
+      setCurrentIndex(-1)
+      setRegexError(null)
+      lastQueryKey = ''
+      return
+    }
+
+    const queryKey = `${q}\u0000${re}\u0000${cs}`
+    const queryChanged = queryKey !== lastQueryKey
+    lastQueryKey = queryKey
+
+    let regex: RegExp
+    try {
+      const built = buildSearch(q, { useRegex: re, caseSensitive: cs })
+      setRegexError(null)
+      if (!built) {
+        clearHighlights(scrollEl)
+        setMatchCount(0)
+        setCurrentIndex(-1)
+        return
+      }
+      regex = built.regex
+    } catch (err) {
+      setRegexError(err instanceof Error ? err.message : String(err))
+      clearHighlights(scrollEl)
+      setMatchCount(0)
+      setCurrentIndex(-1)
+      return
+    }
+
+    clearHighlights(scrollEl)
+    const count = highlightMatches(scrollEl, regex)
+    setMatchCount(count)
+    const prev = untrack(currentIndex)
+    const nextIdx = count === 0 ? -1 : queryChanged ? 0 : Math.max(0, Math.min(prev, count - 1))
+    setCurrentIndex(nextIdx)
+    // Apply the active class inline — the dedicated apply-active effect below depends on
+    // currentIndex/matchCount and won't re-fire on a content-stream tick that leaves both
+    // unchanged, so without this the recreated marks would lose their highlight.
+    setActiveMatch(scrollEl, nextIdx)
+    if (queryChanged && count > 0) bumpScrollTick((t) => t + 1)
+  })
+
+  createEffect(() => {
+    const i = currentIndex()
+    const n = matchCount()
+    const open = isSearchOpen()
+    const scrollEl = scrollRef
+    if (!scrollEl || !open || n === 0) return
+    setActiveMatch(scrollEl, i)
+  })
+
+  createEffect(() => {
+    scrollTick()
+    const i = currentIndex()
+    const scrollEl = scrollRef
+    if (!scrollEl || i < 0) return
+    const el = getMatchElement(scrollEl, i)
+    if (!el) return
+    scrollController.pauseFollow()
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  })
+
+  // Opens the find bar, or refocuses+reselects its input if already open — matches what Ctrl+F
+  // does in find-shortcut.ts so the toolbar magnifier and the keyboard shortcut behave the same.
+  // (openSearch() alone is a no-op when already open, since isSearchOpen() staying true neither
+  // remounts TranscriptSearchBar nor re-fires its focus-on-mount.)
+  function handleFindClick(): void {
+    const existing = document.querySelector<HTMLInputElement>('.search-field')
+    if (existing) {
+      existing.focus()
+      existing.select()
+    } else {
+      openSearch()
+    }
+  }
 
   async function handleOpenInTerminal(): Promise<void> {
     const session = selectedSession()
@@ -253,6 +381,18 @@ export default function DetailPane() {
                   </Show>
                   <EditorButton folderPath={session().projectPath} />
                 </div>
+                <button
+                  type="button"
+                  class="transcript-tool-btn"
+                  classList={{ active: isSearchOpen() }}
+                  title="Find in transcript (Ctrl+F)"
+                  onClick={handleFindClick}
+                >
+                  <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+                    <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.4" />
+                    <path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                  </svg>
+                </button>
                 <button class="transcript-tool-btn" data-scroll-transcript="top" title="Scroll to the start of the conversation">
                   <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
                     <path
@@ -319,7 +459,11 @@ export default function DetailPane() {
                 </button>
               </div>
 
-              <div class="transcript-scroll" data-session={session().sessionId} ref={scrollRef}>
+              <div class="transcript-area">
+                <Show when={isSearchOpen()}>
+                  <TranscriptSearchBar />
+                </Show>
+                <div class="transcript-scroll" data-session={session().sessionId} ref={scrollRef}>
                 <Show
                   when={live()}
                   fallback={
@@ -377,6 +521,7 @@ export default function DetailPane() {
                     </>
                   )}
                 </Show>
+                </div>
               </div>
 
               <Composer />
