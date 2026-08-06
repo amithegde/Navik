@@ -1,8 +1,7 @@
 import { createEffect, createSignal, For, onCleanup, onMount, Show, untrack } from 'solid-js'
 import { isPinned, selectedSession, togglePinned, goBack, goHome, canGoBack } from '../state/sessions-store'
-import { displayEntries, isLoadingTranscript, liveState } from '../state/live-conversation-store'
+import { displayEntries, isLoadingTranscript, isLive, liveState } from '../state/live-conversation-store'
 import { showToast } from '../state/toast-store'
-import { formatRelativeTime } from '../lib/relative-time'
 import { TranscriptScrollController, installTranscriptToolbarScrollButtons } from '../lib/transcript-scroll'
 import { buildSearch, clearHighlights, getMatchElement, highlightMatches, setActiveMatch } from '../lib/transcript-search'
 import {
@@ -24,34 +23,19 @@ import TranscriptSearchBar from './TranscriptSearchBar'
 import Composer from './Composer'
 import TextViewerModal from './TextViewerModal'
 import ImageViewerModal from './ImageViewerModal'
+import SessionDetailsModal from './SessionDetailsModal'
 import HomeView from './HomeView'
 import EditorButton from './EditorButton'
 import { imagePreview, setImagePreview } from '../state/composer-store'
 import { isZenMode, toggleZenMode } from '../state/layout-store'
 
-function formatLongDate(iso: string): string {
-  return new Date(iso).toLocaleString(undefined, { dateStyle: 'full', timeStyle: 'short' })
-}
-
 function copy(text: string, message: string): void {
   void navigator.clipboard.writeText(text).then(() => showToast(message))
 }
 
-const copyIconPath = 'M3.5 10.5h-1a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v1'
-
-function CopyIconButton(props: { title: string; onClick: () => void }) {
-  return (
-    <button type="button" class="copy-icon-btn" title={props.title} onClick={props.onClick}>
-      <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
-        <rect x="5.5" y="5.5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3" />
-        <path d={copyIconPath} stroke="currentColor" stroke-width="1.3" />
-      </svg>
-    </button>
-  )
-}
-
 export default function DetailPane() {
   const [fullTextView, setFullTextView] = createSignal<TextViewerRequest | null>(null)
+  const [showDetails, setShowDetails] = createSignal(false)
   let scrollRef: HTMLDivElement | undefined
   let boundScrollEl: HTMLDivElement | undefined
   let boundSessionId: string | undefined
@@ -226,85 +210,31 @@ export default function DetailPane() {
       <Show when={selectedSession()} fallback={<HomeView />}>
         {(session) => {
           const live = liveState
-          const activePid = (): number | null => {
-            const l = live()
-            if (l && !l.hasExited) return l.processId
-            return session().running?.pid ?? null
-          }
-          const turnCount = (): number | null => displayEntries()?.length ?? null
+          const active = (): boolean => isLive() || !!session().running
 
           return (
             <>
               <div class="detail-header">
                 <div class="detail-title-block">
                   <h2 class="detail-title">{session().title}</h2>
-                  <div class="detail-breadcrumb">
-                    <Show when={live() && !live()!.hasExited}>
-                      <span class="badge running" title={live()!.isBusy ? 'Claude is actively working' : 'Live session, idle and ready for input'}>
-                        <span class="dot" />
-                        {live()!.isBusy ? 'working' : 'live'}
-                      </span>
-                    </Show>
-                    <Show when={!(live() && !live()!.hasExited) && session().running}>
-                      <span
-                        class="badge running"
-                        title="Running outside this app — sending a message here attaches to it. Leave that other window idle afterwards; both writing to the same session at once will corrupt its transcript."
-                      >
-                        <span class="dot" />
-                        {session().running?.status ?? 'running'}
-                      </span>
-                    </Show>
-                    <Show when={activePid() !== null}>
-                      <span class="pid-badge" title="Process id of the claude.exe running this session">
-                        <code>pid {activePid()}</code>
-                        <CopyIconButton title="Copy pid" onClick={() => copy(String(activePid()), 'Pid copied.')} />
-                      </span>
-                    </Show>
-                    <span class="badge" title="Project">
-                      {session().projectDisplayName}
-                    </span>
-                    <Show when={session().gitBranch}>
-                      <span class="badge" title="Git branch">
-                        {session().gitBranch}
-                      </span>
-                    </Show>
-                    <Show
-                      when={!live() || live()!.hasKnownSessionId || live()!.resolvedSessionId !== null}
-                      fallback={
-                        <span class="badge" title="Claude hasn't assigned a session ID yet — send the first message to get one">
-                          id pending…
-                        </span>
-                      }
-                    >
-                      <span class="session-id-badge" title={`Session ID (used to resume this session): ${session().sessionId}`}>
-                        <code>{session().sessionId}</code>
-                        <CopyIconButton title="Copy session ID" onClick={() => copy(session().sessionId, 'Session ID copied.')} />
-                      </span>
-                    </Show>
-                    <span class="badge" title={`Last activity: ${formatLongDate(session().lastActivityUtc)}`}>
-                      {formatRelativeTime(session().lastActivityUtc)}
-                    </span>
-                    <Show when={turnCount() !== null}>
-                      <span class="badge" title="Turns in this session (user + assistant)">
-                        {turnCount()} turn{turnCount() === 1 ? '' : 's'}
-                      </span>
-                    </Show>
-                    <Show when={(live()?.totalCostUsd ?? 0) > 0}>
-                      <span class="badge" title="Cumulative cost this session">
-                        ${live()!.totalCostUsd.toFixed(4)}
-                      </span>
-                    </Show>
-                    <Show when={session().running?.entrypoint}>
-                      <span class="badge" title="Launched from">
-                        {session().running?.entrypoint}
-                      </span>
-                    </Show>
-                    <Show when={session().running?.startedAtUtc}>
-                      <span class="badge" title={`Started: ${formatLongDate(session().running!.startedAtUtc!)}`}>
-                        started {formatRelativeTime(session().running!.startedAtUtc!)}
-                      </span>
-                    </Show>
-                  </div>
+                </div>
+                <div class="detail-header-actions">
+                  <span class="badge" title="Project">
+                    {session().projectDisplayName}
+                  </span>
+                  <button
+                    type="button"
+                    class="info-btn"
+                    classList={{ active: active() }}
+                    title={active() ? 'Session details — active' : 'Session details'}
+                    onClick={() => setShowDetails(true)}
+                  >
+                    <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+                      <circle cx="8" cy="8" r="6.25" stroke="currentColor" stroke-width="1.3" />
+                      <path d="M8 7v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+                      <circle cx="8" cy="5" r="0.85" fill="currentColor" />
+                    </svg>
+                  </button>
                 </div>
               </div>
 
@@ -532,6 +462,7 @@ export default function DetailPane() {
 
       <TextViewerModal view={fullTextView()} onClose={() => setFullTextView(null)} onCopy={(text) => copy(text, 'Copied.')} />
       <ImageViewerModal image={imagePreview()} onClose={() => setImagePreview(null)} />
+      <SessionDetailsModal isOpen={showDetails()} onClose={() => setShowDetails(false)} />
     </div>
   )
 }
