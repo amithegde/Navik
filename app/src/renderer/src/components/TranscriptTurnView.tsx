@@ -113,15 +113,8 @@ export default function TranscriptTurnView(props: { entry: TranscriptEntry; isLa
               </svg>
             }
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-label="Claude (terminal bot)">
-              <path d="M12 6.6 L12 3.8" stroke="#D97757" stroke-width="1.6" stroke-linecap="round" />
-              <circle cx="12" cy="2.7" r="1.15" fill="#D97757" />
-              <rect x="3.1" y="10.4" width="1.5" height="3.6" rx="0.75" fill="#D97757" />
-              <rect x="19.4" y="10.4" width="1.5" height="3.6" rx="0.75" fill="#D97757" />
-              <rect x="4.4" y="6.6" width="15.2" height="13" rx="3.4" fill="#D97757" />
-              <circle cx="9" cy="10.7" r="1.35" fill="#2b1a14" />
-              <circle cx="15" cy="10.7" r="1.35" fill="#2b1a14" />
-              <path d="M9.4 14.1 Q12 16.1 14.6 14.1" stroke="#2b1a14" stroke-width="1.3" stroke-linecap="round" fill="none" />
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-label="Claude">
+              <path fill="#D97757" d="M12 2c.5 5 4.5 9 10 10-5.5 1-9.5 5-10 10-.5-5-4.5-9-10-10 5.5-1 9.5-5 10-10z" />
             </svg>
           </Show>
         </div>
