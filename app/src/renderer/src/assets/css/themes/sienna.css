@@ -1,30 +1,30 @@
 :root[data-theme="sienna"] {
-    --bg-app: #21130f;
-    --bg-rail: #1b0f0c;
-    --bg-panel: #1b0f0c;
-    --bg-elevated: #2c1a15;
-    --bg-elevated-hover: #3a241d;
-    --bg-elevated-active: #452c24;
-    --bg-input: #150b09;
+    --bg-app: #eef5db;
+    --bg-rail: #e3edd0;
+    --bg-panel: #e3edd0;
+    --bg-elevated: #fbfdf3;
+    --bg-elevated-hover: #ffffff;
+    --bg-elevated-active: #f1f5e2;
+    --bg-input: #fbfdf3;
 
-    --border-subtle: rgba(255, 181, 99, 0.12);
-    --border-default: rgba(255, 181, 99, 0.22);
-    --border-strong: rgba(255, 181, 99, 0.36);
+    --border-subtle: rgba(40, 45, 30, 0.07);
+    --border-default: rgba(40, 45, 30, 0.12);
+    --border-strong: rgba(40, 45, 30, 0.2);
 
-    --text-primary: #ffd29d;
-    --text-secondary: #ffb563;
-    --text-muted: #918450;
+    --text-primary: #36332a;
+    --text-secondary: #615c4a;
+    --text-muted: #8a8e72;
 
-    --accent: #f85e00;
-    --accent-strong: #ff8420;
-    --accent-soft: rgba(248, 94, 0, 0.18);
-    --accent-soft-strong: rgba(248, 94, 0, 0.32);
+    --accent: #fe5f55;
+    --accent-strong: #e84940;
+    --accent-soft: rgba(254, 95, 85, 0.12);
+    --accent-soft-strong: rgba(254, 95, 85, 0.22);
 
-    --running: #9fae4a;
-    --running-soft: rgba(159, 174, 74, 0.18);
-    --danger: #a41623;
-    --warn: #ffb563;
+    --running: #4ea865;
+    --running-soft: rgba(78, 168, 101, 0.14);
+    --danger: #c0392b;
+    --warn: #c98a12;
 
-    --shadow-lift: 0 8px 24px rgba(0, 0, 0, 0.45);
-    color-scheme: dark;
+    --shadow-lift: 0 8px 24px rgba(40, 45, 30, 0.12);
+    color-scheme: light;
 }

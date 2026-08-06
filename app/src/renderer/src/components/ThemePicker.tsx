@@ -13,12 +13,8 @@ const options: ThemeOption[] = [
   { key: 'slate', label: 'Slate', bg: '#202e37', accent: '#5998c0' },
   { key: 'ocean', label: 'Ocean', bg: '#09334e', accent: '#49ace9' },
   { key: 'autumn', label: 'Autumn', bg: '#013a55', accent: '#f77f00' },
-  { key: 'coastal', label: 'Coastal', bg: '#1d1535', accent: '#368f8b' },
-  { key: 'sienna', label: 'Sienna', bg: '#2c1a15', accent: '#f85e00' },
-  { key: 'heather', label: 'Heather', bg: '#4a4e69', accent: '#a89ab4' },
-  { key: 'sorbet', label: 'Sorbet', bg: '#fbfdf3', accent: '#fe5f55' },
-  { key: 'fjord', label: 'Fjord', bg: '#5c6b73', accent: '#5fb8c8' },
-  { key: 'tangier', label: 'Tangier', bg: '#062a40', accent: '#ff7d00' }
+  { key: 'sienna', label: 'Sienna', bg: '#fbfdf3', accent: '#fe5f55' },
+  { key: 'fjord', label: 'Fjord', bg: '#5c6b73', accent: '#5fb8c8' }
 ]
 
 const storageKey = 'navik-theme'
