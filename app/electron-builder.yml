@@ -9,6 +9,20 @@ directories:
 files:
   - out/**/*
   - package.json
+  # node-pty ships prebuilds for 4 platform/arch combos; loadNativeModule (node-pty/lib/utils.js)
+  # only ever reads the one matching process.platform-process.arch. On the only target we actually
+  # build and verify (Windows x64) that's win32-x64 — the other three are dead weight that gets
+  # LZMA-compressed into both exes. NOTE: this is global, not per-target — a future macOS/Linux/
+  # win-arm64 build MUST revisit these excludes or node-pty will fail to load its native binary.
+  - '!**/node_modules/node-pty/prebuilds/darwin-x64/**'
+  - '!**/node_modules/node-pty/prebuilds/darwin-arm64/**'
+  - '!**/node_modules/node-pty/prebuilds/win32-arm64/**'
+  # third_party/conpty/ holds the raw conpty.dll/OpenConsole.exe used only by node-pty's
+  # post-install.js (to flatten into build/Release for SOURCE builds). We ship the prebuild
+  # (npmRebuild: false), which is self-contained — prebuilds/win32-x64/conpty/{conpty.dll,
+  # OpenConsole.exe} is what conpty.cc loads at runtime. So third_party is dead weight here too.
+  # Same global-not-per-target caveat as above: revisit for a source-build / non-x64 target.
+  - '!**/node_modules/node-pty/third_party/**'
 
 # node-pty ships N-API prebuilds under prebuilds/<plat>-<arch>/ that it loads at runtime (utils.js
 # resolves build/Release -> prebuilds). They're ABI-stable and load fine under Electron as-is —
@@ -34,6 +48,9 @@ win:
 
 nsis:
   artifactName: Setup.${ext}
+  # Tried `differentialPackage: false` to drop Setup.exe.blockmap — in electron-builder 26 this
+  # option only marks the package for update servers; it does NOT suppress the blockmap, which is
+  # generated unconditionally. The 100 KB blockmap stays; not worth chasing further.
   # NSIS emits warning 9000 for version-less installer names like "Setup.exe" (Windows applies
   # appcompat shims to them), and electron-builder treats NSIS warnings as errors by default —
   # without this the whole win build fails.
