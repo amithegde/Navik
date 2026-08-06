@@ -10,6 +10,15 @@ files:
   - out/**/*
   - package.json
 
+# node-pty ships N-API prebuilds under prebuilds/<plat>-<arch>/ that it loads at runtime (utils.js
+# resolves build/Release -> prebuilds). They're ABI-stable and load fine under Electron as-is —
+# verified by loading + spawning node-pty under electron.exe with no rebuild. @electron/rebuild
+# nonetheless tries to rebuild it from source (it can't recognize node-pty's custom prebuild
+# shape) and fails where no Visual Studio is installed. Skipping the rebuild ships the prebuilt
+# binaries directly. If a native dep that genuinely needs rebuilding for Electron is ever added,
+# this will need revisiting.
+npmRebuild: false
+
 # The UI is English-only; shipping just en-US drops ~46 MB of Chromium locale files
 # from the unpacked app.
 electronLanguages:
