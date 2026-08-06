@@ -16,6 +16,7 @@ const groups: ShortcutGroup[] = [
     rows: [
       { keys: ['Ctrl', 'N'], desc: 'Start a new session in the current project' },
       { keys: ['Ctrl', 'K'], desc: 'Focus the session search box' },
+      { keys: ['Ctrl', '/'], desc: 'Focus the message composer' },
       { keys: ['Ctrl', 'M'], desc: 'Quick-switch model and effort' },
       { keys: ['Alt', '←'], desc: 'Go back to the previous page' },
       { keys: ['Alt', '→'], desc: 'Go forward to the next page' },

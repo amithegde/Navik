@@ -20,6 +20,7 @@ import { installSearchShortcut } from './lib/search-shortcut'
 import { installNewSessionShortcut } from './lib/new-session-shortcut'
 import { installNavShortcut } from './lib/nav-shortcut'
 import { installQuickModelEffortShortcut } from './lib/quick-model-effort-shortcut'
+import { installFocusComposerShortcut } from './lib/focus-composer-shortcut'
 import { installScrollbarHover } from './lib/scrollbar-hover'
 import { installPaneResizer } from './lib/pane-resizer'
 import { installZenModeEscapeHatch } from './lib/zen-mode-shortcut'
@@ -43,6 +44,7 @@ export default function App() {
     const uninstallNewSessionShortcut = installNewSessionShortcut(startNewSessionInCurrentProject)
     const uninstallNavShortcut = installNavShortcut()
     const uninstallQuickModelEffortShortcut = installQuickModelEffortShortcut(openQuickModelEffort)
+    const uninstallFocusComposerShortcut = installFocusComposerShortcut()
     const uninstallScrollbarHover = installScrollbarHover()
     const uninstallPaneResizer = resizerRef ? installPaneResizer(resizerRef) : undefined
     const uninstallZenModeEscapeHatch = installZenModeEscapeHatch()
@@ -55,6 +57,7 @@ export default function App() {
       uninstallNewSessionShortcut()
       uninstallNavShortcut()
       uninstallQuickModelEffortShortcut()
+      uninstallFocusComposerShortcut()
       uninstallScrollbarHover()
       uninstallPaneResizer?.()
       uninstallZenModeEscapeHatch()
