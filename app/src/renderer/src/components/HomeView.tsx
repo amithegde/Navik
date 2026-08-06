@@ -1,9 +1,14 @@
-import { createMemo, For, Show } from 'solid-js'
+import { createMemo, For, onMount, Show } from 'solid-js'
 import { isLoading, pinnedSessions, projects, sessions } from '../state/sessions-store'
+import { refreshUsage } from '../state/usage-store'
 import HomeSessionCard from './HomeSessionCard'
 import UsagePanel from './UsagePanel'
 
 export default function HomeView() {
+  // HomeView mounts/unmounts as the user navigates to/from home (it's the fallback of the
+  // session Show in DetailPane), so this fires a refresh on every visit — not just the first.
+  onMount(() => void refreshUsage())
+
   const runningCount = createMemo(() => sessions().filter((s) => s.running).length)
   const recent = createMemo(() =>
     [...sessions()].sort((a, b) => b.lastActivityUtc.localeCompare(a.lastActivityUtc)).slice(0, 6)
