@@ -113,14 +113,15 @@ export default function TranscriptTurnView(props: { entry: TranscriptEntry; isLa
               </svg>
             }
           >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-label="Claude (terminal bot)">
-              <path d="M12 6.2 L12 3.5" stroke="#D97757" stroke-width="1.7" stroke-linecap="round" />
-              <path d="M12 0.7 C12.16 1.5 12.5 1.84 13.3 2 C12.5 2.16 12.16 2.5 12 3.3 C11.84 2.5 11.5 2.16 10.7 2 C11.5 1.84 11.84 1.5 12 0.7 Z" fill="#D97757" />
-              <rect x="4" y="6.2" width="16" height="12.6" rx="2.8" fill="#D97757" />
-              <rect x="7.9" y="9.7" width="2.5" height="2.5" rx="0.6" fill="#2b1a14" />
-              <rect x="13.6" y="9.7" width="2.5" height="2.5" rx="0.6" fill="#2b1a14" />
-              <rect x="9.3" y="12.8" width="5.4" height="1" rx="0.5" fill="#2b1a14" />
-              <rect x="7.9" y="14.4" width="8.2" height="1.3" rx="0.65" fill="#2b1a14" />
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-label="Claude (terminal bot)">
+              <path d="M12 6.6 L12 3.8" stroke="#D97757" stroke-width="1.6" stroke-linecap="round" />
+              <circle cx="12" cy="2.7" r="1.15" fill="#D97757" />
+              <rect x="3.1" y="10.4" width="1.5" height="3.6" rx="0.75" fill="#D97757" />
+              <rect x="19.4" y="10.4" width="1.5" height="3.6" rx="0.75" fill="#D97757" />
+              <rect x="4.4" y="6.6" width="15.2" height="13" rx="3.4" fill="#D97757" />
+              <circle cx="9" cy="10.7" r="1.35" fill="#2b1a14" />
+              <circle cx="15" cy="10.7" r="1.35" fill="#2b1a14" />
+              <path d="M9.4 14.1 Q12 16.1 14.6 14.1" stroke="#2b1a14" stroke-width="1.3" stroke-linecap="round" fill="none" />
             </svg>
           </Show>
         </div>
