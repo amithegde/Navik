@@ -17,6 +17,7 @@ const groups: ShortcutGroup[] = [
       { keys: ['Ctrl', 'N'], desc: 'Start a new session in the current project' },
       { keys: ['Ctrl', 'K'], desc: 'Focus the session search box' },
       { keys: ['Ctrl', 'F'], desc: 'Find text in the transcript' },
+      { keys: ['Ctrl', '`'], desc: 'Toggle the integrated terminal panel' },
       { keys: ['Ctrl', '/'], desc: 'Focus the message composer' },
       { keys: ['Ctrl', 'M'], desc: 'Quick-switch model and effort' },
       { keys: ['Alt', '←'], desc: 'Go back to the previous page' },

@@ -23,6 +23,12 @@
         savedSidebarWidth = Math.max(bounds.min, Math.min(bounds.max, savedSidebarWidth))
         document.documentElement.style.setProperty('--sidebar-width', savedSidebarWidth + 'px')
       }
+      // Restore the saved terminal panel height too — same pre-paint reason: avoid a jump from the
+      // default to the user's chosen size on first open.
+      var savedTerminalHeight = parseInt(localStorage.getItem('navik-terminal-height'), 10)
+      if (!isNaN(savedTerminalHeight) && savedTerminalHeight >= 80) {
+        document.documentElement.style.setProperty('--terminal-height', savedTerminalHeight + 'px')
+      }
     </script>
   </head>
   <body>

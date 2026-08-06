@@ -87,6 +87,28 @@ const editors = {
     ipcRenderer.invoke(IpcChannels.editorsOpen, { editor, folderPath })
 }
 
+const terminal = {
+  create: (opts: { cwd?: string; cols?: number; rows?: number }): Promise<{ id: string; shell: string } | { error: string }> =>
+    ipcRenderer.invoke(IpcChannels.terminalCreate, opts),
+  input: (id: string, data: string): void => {
+    ipcRenderer.send(IpcChannels.terminalInput, { id, data })
+  },
+  resize: (id: string, cols: number, rows: number): void => {
+    ipcRenderer.send(IpcChannels.terminalResize, { id, cols, rows })
+  },
+  kill: (id: string): Promise<void> => ipcRenderer.invoke(IpcChannels.terminalKill, id),
+  onData: (callback: (payload: { id: string; data: string }) => void): (() => void) => {
+    const listener = (_event: Electron.IpcRendererEvent, payload: { id: string; data: string }): void => callback(payload)
+    ipcRenderer.on(IpcChannels.terminalData, listener)
+    return () => ipcRenderer.removeListener(IpcChannels.terminalData, listener)
+  },
+  onExit: (callback: (payload: { id: string; exitCode: number }) => void): (() => void) => {
+    const listener = (_event: Electron.IpcRendererEvent, payload: { id: string; exitCode: number }): void => callback(payload)
+    ipcRenderer.on(IpcChannels.terminalExit, listener)
+    return () => ipcRenderer.removeListener(IpcChannels.terminalExit, listener)
+  }
+}
+
 const settings = {
   get: (): Promise<AppSettings> => ipcRenderer.invoke(IpcChannels.settingsGet),
   set: (patch: Partial<AppSettings>): Promise<AppSettings> => ipcRenderer.invoke(IpcChannels.settingsSet, patch)
@@ -107,6 +129,7 @@ const navikApi = {
   catalog,
   usage,
   editors,
+  terminal,
   settings,
   zoom
 }

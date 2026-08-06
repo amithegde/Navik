@@ -153,6 +153,52 @@ body.window-maximized .titlebar-btn .icon-restore { display: block; }
     display: none;
 }
 
+/* Terminal zen/maximize: hide the sidebar AND the detail pane so the terminal fills the window.
+   Mutually exclusive in effect with session zen mode (which hides the terminal instead) — driven
+   by a separate signal so the detail pane knows which way to collapse. */
+.app-shell.terminal-zen {
+    grid-template-columns: 1fr;
+}
+.app-shell.terminal-zen .sidebar,
+.app-shell.terminal-zen .pane-resizer {
+    display: none;
+}
+.app-shell.terminal-zen .detail-column {
+    grid-template-rows: minmax(0, 1fr);
+}
+.app-shell.terminal-zen .detail-pane,
+.app-shell.terminal-zen .terminal-resizer {
+    display: none;
+}
+
+/* ---- Detail column: detail pane on top, optional terminal panel at the bottom ----
+   The third app-shell column is itself a grid so the terminal can occupy a resizable bottom row.
+   When the terminal is closed, only the detail pane gets a track and the resizer/terminal are
+   hidden; when open, the terminal claims var(--terminal-height) and the detail pane takes the
+   remainder. Terminal + resizer stay mounted (just display:none) so the shell + its scrollback
+   survive open/close toggles. */
+
+.detail-column {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr);
+    min-width: 0;
+    min-height: 0;
+}
+.detail-column.terminal-open {
+    grid-template-rows: minmax(0, 1fr) 4px var(--terminal-height, 240px);
+}
+.detail-column:not(.terminal-open) .terminal-resizer,
+.detail-column:not(.terminal-open) .terminal-pane {
+    display: none;
+}
+.app-shell.zen-mode .detail-column {
+    grid-template-rows: minmax(0, 1fr);
+}
+.app-shell.zen-mode .terminal-resizer,
+.app-shell.zen-mode .terminal-pane {
+    display: none;
+}
+
 /* ---- Pane resizer (drag to resize sidebar, VSCode-style sash) ---- */
 
 .pane-resizer {
@@ -188,6 +234,41 @@ body.resizing-panes .resizer-grip span {
 }
 body.resizing-panes { cursor: col-resize; user-select: none; }
 body.resizing-panes * { cursor: col-resize !important; }
+
+/* ---- Terminal resizer (drag to resize the bottom panel, horizontal sash) ---- */
+
+.terminal-resizer {
+    position: relative;
+    cursor: row-resize;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    border-radius: var(--radius-md);
+    transition: background 120ms ease;
+}
+.terminal-resizer:hover { background: var(--bg-elevated-hover); }
+.terminal-resizer .resizer-grip-h {
+    display: flex;
+    flex-direction: row;
+    gap: 3px;
+    opacity: 0.5;
+    transition: opacity 120ms ease;
+    pointer-events: none;
+}
+.terminal-resizer:hover .resizer-grip-h,
+body.resizing-terminal .resizer-grip-h { opacity: 1; }
+.terminal-resizer .resizer-grip-h span {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    transition: background 120ms ease;
+}
+.terminal-resizer:hover .resizer-grip-h span,
+body.resizing-terminal .resizer-grip-h span { background: var(--accent); }
+body.resizing-terminal { cursor: row-resize; user-select: none; }
+body.resizing-terminal * { cursor: row-resize !important; }
 
 /* ---- Sidebar ---- */
 
@@ -2055,4 +2136,77 @@ mark.search-match.active {
     box-shadow: 0 0 0 1.5px var(--accent);
     border-radius: 3px;
 }
+
+/* ============================================================
+   Integrated terminal panel
+   ============================================================ */
+
+.terminal-pane {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    background: #0b0d12;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.terminal-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 6px;
+    flex-shrink: 0;
+    background: #0b0d12;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.terminal-title {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #9aa0b0;
+    padding: 0 6px;
+}
+.terminal-toolbar-spacer { flex: 1; }
+.terminal-tool-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: transparent;
+    color: #9aa0b0;
+    transition: background 120ms ease, color 120ms ease;
+}
+.terminal-tool-btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.08); color: #eceef2; }
+.terminal-tool-btn:disabled { opacity: 0.35; cursor: default; }
+.terminal-tool-btn.danger:hover:not(:disabled) { background: var(--danger); color: #fff; }
+.terminal-tool-btn.active { background: var(--accent-soft); color: var(--accent-strong); }
+.terminal-tool-btn.active:hover:not(:disabled) { background: var(--accent-soft-strong); color: var(--accent-strong); }
+
+/* xterm fills the remaining space. The renderer's own scrollbars (16px gutters) would clash with
+   xterm's, so let xterm draw its own against the dark background. */
+.terminal-container {
+    flex: 1;
+    min-height: 0;
+    padding: 4px 8px 6px;
+}
+.terminal-container .xterm {
+    height: 100%;
+    padding: 0;
+}
+.terminal-container .xterm-viewport::-webkit-scrollbar { width: 10px; height: 10px; }
+.terminal-container .xterm-viewport::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.16);
+    border-radius: var(--radius-pill);
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+.terminal-container .xterm-viewport::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.28); background-clip: content-box; }
+
 

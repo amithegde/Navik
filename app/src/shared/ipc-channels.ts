@@ -32,6 +32,13 @@ export const IpcChannels = {
   editorsGetAvailable: 'editors:get-available',
   editorsOpen: 'editors:open',
 
+  terminalCreate: 'terminal:create',
+  terminalInput: 'terminal:input',
+  terminalResize: 'terminal:resize',
+  terminalKill: 'terminal:kill',
+  terminalData: 'terminal:data',
+  terminalExit: 'terminal:exit',
+
   settingsGet: 'settings:get',
   settingsSet: 'settings:set'
 } as const

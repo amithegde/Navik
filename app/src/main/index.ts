@@ -13,6 +13,7 @@ import { tryLaunchExternal } from './claude-launcher'
 import { editorState } from './editor-state'
 import { loadAppSettings, saveAppSettings } from './app-settings-store'
 import { setAwakeBlocking } from './awake-blocker'
+import { initTerminalHost, disposeTerminal } from './terminal-host'
 import type { ImageAttachment } from '../shared/transcript-types'
 import type { LiveSessionRowUpdate } from '../shared/live-session-types'
 import type { EditorKind } from '../shared/editor-types'
@@ -161,6 +162,10 @@ function registerEditorsIpc(): void {
   )
 }
 
+function registerTerminalIpc(): void {
+  initTerminalHost()
+}
+
 function registerSettingsIpc(): void {
   ipcMain.handle(IpcChannels.settingsGet, () => loadAppSettings())
 
@@ -182,6 +187,7 @@ app.whenReady().then(async () => {
   registerUsageIpc()
   registerEditorsIpc()
   registerSettingsIpc()
+  registerTerminalIpc()
   void editorState.init()
   await sessionsState.init()
   const initialSettings = await loadAppSettings()
@@ -197,4 +203,7 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()
 })
 
-app.on('before-quit', () => sessionsState.dispose())
+app.on('before-quit', () => {
+  disposeTerminal()
+  sessionsState.dispose()
+})

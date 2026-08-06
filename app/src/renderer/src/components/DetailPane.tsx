@@ -437,7 +437,7 @@ export default function DetailPane() {
                     fallback={
                       <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
                         <path
-                          d="M6 2.5V6H2.5M10 6h3.5V2.5M13.5 10H10v3.5M2.5 10v3.5H6"
+                          d="M6 2.5V6H2.5M10 2.5V6H13.5M10 13.5V10H13.5M6 13.5V10H2.5"
                           stroke="currentColor"
                           stroke-width="1.3"
                           stroke-linecap="round"
