@@ -1,58 +1,12 @@
-import { execFile } from 'node:child_process'
-import { promisify } from 'node:util'
 import { killProcessTree } from './kill-process-tree'
 import { isProcessAlive } from './running-session-registry'
+import { getProcessStartTime, isRegisteredProcess } from './process-identity'
 import type { RunningProcessInfo } from '../shared/session-types'
-
-const execFileAsync = promisify(execFile)
-
-// How far the OS's own start time for a pid may sit from the startedAt the CLI wrote into
-// ~/.claude/sessions/{pid}.json before we conclude they're different processes. Generous because
-// the two are recorded by different clocks at slightly different moments (process creation vs.
-// the CLI getting far enough to write its registry entry); a recycled pid is hours or days off,
-// not seconds.
-const startTimeToleranceMs = 5 * 60 * 1000
 
 export type StopSessionOutcome = 'stopped' | 'not-running' | 'failed'
 
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-async function getProcessStartTime(pid: number): Promise<Date | null> {
-  if (process.platform === 'win32') {
-    try {
-      const { stdout } = await execFileAsync('powershell.exe', [
-        '-NoProfile',
-        '-NonInteractive',
-        '-Command',
-        `(Get-Process -Id ${pid} -ErrorAction Stop).StartTime.ToUniversalTime().ToString('o')`
-      ])
-      const parsed = new Date(stdout.trim())
-      return Number.isNaN(parsed.getTime()) ? null : parsed
-    } catch {
-      return null
-    }
-  }
-
-  // `etimes` (elapsed seconds since start) is supported by both GNU and BSD/macOS `ps`, unlike
-  // `lstart`'s locale-dependent date format — 1-second resolution is plenty for a 5-minute tolerance.
-  try {
-    const { stdout } = await execFileAsync('ps', ['-o', 'etimes=', '-p', String(pid)])
-    const etimes = parseInt(stdout.trim(), 10)
-    return Number.isNaN(etimes) ? null : new Date(Date.now() - etimes * 1000)
-  } catch {
-    return null
-  }
-}
-
-/** Whether the process now holding the pid is plausibly the one the registry entry was written
- * for. An entry without a startedAt can't be checked this way — treated as a match, since every
- * entry the CLI writes has one and refusing outright would make the button dead. */
-export function isRegisteredProcess(registeredStartUtc: string | undefined, actualStartUtc: Date): boolean {
-  if (!registeredStartUtc) return true
-  const registered = new Date(registeredStartUtc).getTime()
-  return Math.abs(actualStartUtc.getTime() - registered) <= startTimeToleranceMs
 }
 
 /**
