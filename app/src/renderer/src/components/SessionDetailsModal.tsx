@@ -82,9 +82,9 @@ function buildRows(session: ClaudeSession, live: LiveConversationState | null): 
   }
 
   if (live && !live.hasExited && live.processId) {
-    rows.push({ label: 'Process', value: `pid ${live.processId}`, copyText: String(live.processId), mono: true })
+    rows.push({ label: 'claude.exe PID', value: String(live.processId), copyText: String(live.processId), mono: true })
   } else if (running?.pid) {
-    rows.push({ label: 'Process', value: `pid ${running.pid}`, copyText: String(running.pid), mono: true })
+    rows.push({ label: 'claude.exe PID', value: String(running.pid), copyText: String(running.pid), mono: true })
   }
 
   rows.push({
