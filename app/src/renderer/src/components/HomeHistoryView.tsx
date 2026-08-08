@@ -1,6 +1,6 @@
-import { createMemo, createSignal } from 'solid-js'
+import { createMemo, createSignal, Show } from 'solid-js'
 import type { ClaudeSession } from '@shared/session-types'
-import { sessions } from '../state/sessions-store'
+import { projects, selectedProjectFilter, sessions, setProjectFilter } from '../state/sessions-store'
 import { formatDateTime } from '../lib/relative-time'
 import HomeSessionTable from './HomeSessionTable'
 
@@ -59,6 +59,12 @@ export default function HomeHistoryView() {
       })
       .sort((a, b) => b.lastActivityUtc.localeCompare(a.lastActivityUtc))
 
+    const projectFilter = selectedProjectFilter()
+    if (projectFilter) {
+      const lowerProject = projectFilter.toLowerCase()
+      list = list.filter((s) => s.projectPath.toLowerCase() === lowerProject)
+    }
+
     const term = filter().trim().toLowerCase()
     if (term) {
       list = list.filter(
@@ -76,6 +82,15 @@ export default function HomeHistoryView() {
   const emptyHint = createMemo(() =>
     hasTextFilter() ? 'No sessions match your filter for this day.' : `No sessions on ${fullDateLabel()}.`
   )
+
+  /** Resolves the left-pane project filter (a path string) to a display name for the filter pill. */
+  const activeProject = createMemo(() => {
+    const path = selectedProjectFilter()
+    if (!path) return null
+    const lower = path.toLowerCase()
+    const proj = projects().find((p) => p.path.toLowerCase() === lower)
+    return { path, displayName: proj?.displayName ?? path }
+  })
 
   return (
     <div class="home-history">
@@ -147,6 +162,24 @@ export default function HomeHistoryView() {
             </svg>
           </button>
         </div>
+
+        <Show when={activeProject()}>
+          {(proj) => (
+            <span class="home-project-pill" title={`Filtered by project: ${proj().path}`}>
+              <span class="home-project-pill-name">{proj().displayName}</span>
+              <button
+                type="button"
+                class="home-project-pill-clear"
+                title="Clear project filter"
+                onClick={() => setProjectFilter(proj().path)}
+              >
+                <svg width="10" height="10" viewBox="0 0 16 16" fill="none">
+                  <path d="M3.5 3.5l9 9M12.5 3.5l-9 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                </svg>
+              </button>
+            </span>
+          )}
+        </Show>
 
         <span class="home-history-count">
           {filtered().length} · {dayLabel()}

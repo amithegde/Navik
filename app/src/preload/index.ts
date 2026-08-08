@@ -87,6 +87,11 @@ const editors = {
     ipcRenderer.invoke(IpcChannels.editorsOpen, { editor, folderPath })
 }
 
+const shell = {
+  openExternal: (url: string): Promise<{ success: boolean; error?: string }> =>
+    ipcRenderer.invoke(IpcChannels.shellOpenExternal, url)
+}
+
 const terminal = {
   create: (opts: { cwd?: string; cols?: number; rows?: number }): Promise<{ id: string; shell: string } | { error: string }> =>
     ipcRenderer.invoke(IpcChannels.terminalCreate, opts),
@@ -129,6 +134,7 @@ const navikApi = {
   catalog,
   usage,
   editors,
+  shell,
   terminal,
   settings,
   zoom

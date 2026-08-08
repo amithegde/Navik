@@ -1,5 +1,5 @@
 import './bootstrap-threadpool'
-import { app, BrowserWindow, dialog, ipcMain } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron'
 import path from 'node:path'
 import { createMainWindow } from './main-window'
 import { IpcChannels } from '../shared/ipc-channels'
@@ -162,6 +162,30 @@ function registerEditorsIpc(): void {
   )
 }
 
+function registerShellIpc(): void {
+  // Opens an external http(s) URL in the system's default browser. Scheme-restricted so a
+  // compromised/buggy renderer can't trigger file: or other protocol handlers via this channel.
+  ipcMain.handle(IpcChannels.shellOpenExternal, (_event, url: string) => openExternalUrl(url))
+}
+
+async function openExternalUrl(url: string): Promise<{ success: boolean; error?: string }> {
+  let parsed: URL
+  try {
+    parsed = new URL(url)
+  } catch {
+    return { success: false, error: 'Invalid URL.' }
+  }
+  if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
+    return { success: false, error: 'Only http and https links can be opened.' }
+  }
+  try {
+    await shell.openExternal(url)
+    return { success: true }
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : String(err) }
+  }
+}
+
 function registerTerminalIpc(): void {
   initTerminalHost()
 }
@@ -186,6 +210,7 @@ app.whenReady().then(async () => {
   registerModelCatalogIpc()
   registerUsageIpc()
   registerEditorsIpc()
+  registerShellIpc()
   registerSettingsIpc()
   registerTerminalIpc()
   void editorState.init()

@@ -47,14 +47,6 @@ export default function HomeView() {
 
   return (
     <div class="home-view">
-      <div class="home-hero">
-        <div class="home-hero-mark">N</div>
-        <div class="home-hero-text">
-          <h1 class="home-hero-title">Welcome to Navik</h1>
-          <p class="home-hero-sub">Your Claude Code sessions, at a glance.</p>
-        </div>
-      </div>
-
       <div class="home-top-row">
         <UsagePanel />
 
@@ -71,7 +63,7 @@ export default function HomeView() {
                 </Show>
                 {runningCount()}
               </div>
-              <div class="home-stat-label">Running now</div>
+              <div class="home-stat-label">Running</div>
             </div>
             <div class="home-stat">
               <div class="home-stat-value">{projects().length}</div>
@@ -109,33 +101,37 @@ export default function HomeView() {
             </button>
           </div>
 
-          <Switch>
-            <Match when={tab() === 'pinned'}>
-              <Show
-                when={pinnedSessions().length > 0}
-                fallback={
-                  <div class="home-section-hint">Pin a session with the star in its toolbar to keep it here.</div>
-                }
-              >
-                <HomeFilterBar
-                  value={pinnedFilter()}
-                  onInput={setPinnedFilter}
-                  placeholder="Filter pinned…"
-                />
-                <Show
-                  when={filteredPinned().length > 0}
-                  fallback={<div class="home-table-empty">No pinned sessions match your filter.</div>}
-                >
-                  <div class="home-card-grid">
-                    <For each={filteredPinned()}>{(session) => <HomeSessionCard session={session} />}</For>
-                  </div>
-                </Show>
-              </Show>
-            </Match>
-            <Match when={tab() === 'history'}>
-              <HomeHistoryView />
-            </Match>
-          </Switch>
+          <div class="home-tab-body">
+            <Switch>
+              <Match when={tab() === 'pinned'}>
+                <div class="home-pinned-body">
+                  <Show
+                    when={pinnedSessions().length > 0}
+                    fallback={
+                      <div class="home-section-hint">Pin a session with the star in its toolbar to keep it here.</div>
+                    }
+                  >
+                    <HomeFilterBar
+                      value={pinnedFilter()}
+                      onInput={setPinnedFilter}
+                      placeholder="Filter pinned…"
+                    />
+                    <Show
+                      when={filteredPinned().length > 0}
+                      fallback={<div class="home-table-empty">No pinned sessions match your filter.</div>}
+                    >
+                      <div class="home-card-grid">
+                        <For each={filteredPinned()}>{(session) => <HomeSessionCard session={session} />}</For>
+                      </div>
+                    </Show>
+                  </Show>
+                </div>
+              </Match>
+              <Match when={tab() === 'history'}>
+                <HomeHistoryView />
+              </Match>
+            </Switch>
+          </div>
         </div>
       </Show>
     </div>

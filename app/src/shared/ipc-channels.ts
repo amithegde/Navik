@@ -32,6 +32,8 @@ export const IpcChannels = {
   editorsGetAvailable: 'editors:get-available',
   editorsOpen: 'editors:open',
 
+  shellOpenExternal: 'shell:open-external',
+
   terminalCreate: 'terminal:create',
   terminalInput: 'terminal:input',
   terminalResize: 'terminal:resize',
