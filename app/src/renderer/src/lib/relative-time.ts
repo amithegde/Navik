@@ -11,6 +11,17 @@ export function formatRelativeTime(iso: string): string {
   return utc.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
 }
 
+/** Absolute local date+time for table columns where relative time is less useful (e.g. history). */
+export function formatDateTime(iso: string): string {
+  return new Date(iso).toLocaleString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
 /** Time-since for an epoch-ms timestamp, second-granular for the first minute (so "updated 3s ago"
  * reads naturally next to a Refresh button). */
 export function formatUpdatedAgo(epochMs: number): string {

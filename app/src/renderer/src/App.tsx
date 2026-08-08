@@ -21,6 +21,7 @@ import { installSearchShortcut } from './lib/search-shortcut'
 import { installFindShortcut } from './lib/find-shortcut'
 import { installNewSessionShortcut } from './lib/new-session-shortcut'
 import { installNavShortcut } from './lib/nav-shortcut'
+import { installHomeShortcut } from './lib/home-shortcut'
 import { installQuickModelEffortShortcut } from './lib/quick-model-effort-shortcut'
 import { installFocusComposerShortcut } from './lib/focus-composer-shortcut'
 import { installScrollbarHover } from './lib/scrollbar-hover'
@@ -49,6 +50,7 @@ export default function App() {
     const uninstallFindShortcut = installFindShortcut()
     const uninstallNewSessionShortcut = installNewSessionShortcut(startNewSessionInCurrentProject)
     const uninstallNavShortcut = installNavShortcut()
+    const uninstallHomeShortcut = installHomeShortcut()
     const uninstallQuickModelEffortShortcut = installQuickModelEffortShortcut(openQuickModelEffort)
     const uninstallFocusComposerShortcut = installFocusComposerShortcut()
     const uninstallScrollbarHover = installScrollbarHover()
@@ -65,6 +67,7 @@ export default function App() {
       uninstallFindShortcut()
       uninstallNewSessionShortcut()
       uninstallNavShortcut()
+      uninstallHomeShortcut()
       uninstallQuickModelEffortShortcut()
       uninstallFocusComposerShortcut()
       uninstallScrollbarHover()

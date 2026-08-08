@@ -22,6 +22,7 @@ const groups: ShortcutGroup[] = [
       { keys: ['Ctrl', 'M'], desc: 'Quick-switch model and effort' },
       { keys: ['Alt', '←'], desc: 'Go back to the previous page' },
       { keys: ['Alt', '→'], desc: 'Go forward to the next page' },
+      { keys: ['Alt', 'Home'], desc: 'Go to the home page' },
       { keys: ['Ctrl', '+'], desc: 'Zoom in' },
       { keys: ['Ctrl', '-'], desc: 'Zoom out' },
       { keys: ['Ctrl', '0'], desc: 'Reset zoom to 100%' },
